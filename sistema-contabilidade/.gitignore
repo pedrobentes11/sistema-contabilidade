@@ -42,3 +42,9 @@ __screenshots__/
 # System files
 .DS_Store
 Thumbs.db
+
+# ── Credenciais — NUNCA commitar ────────────────────────────────────
+# Copie environment.example.ts para environment.ts e preencha localmente
+src/environments/environment.ts
+src/environments/environment.prod.ts
+# (o arquivo environment.example.ts SIM vai para o git, como referência)

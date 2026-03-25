@@ -1,11 +1,12 @@
 import { Injectable } from '@angular/core';
 import emailjs from '@emailjs/browser';
 import { EmailPayload } from '../models';
+import { environment } from '../../../environments/environment';
 
-// Configure suas credenciais do EmailJS em environment
-const EMAILJS_SERVICE_ID = 'SEU_SERVICE_ID';
-const EMAILJS_TEMPLATE_ID = 'SEU_TEMPLATE_ID';
-const EMAILJS_PUBLIC_KEY = 'SUA_PUBLIC_KEY';
+// Configure suas credenciais em src/environments/environment.ts (não vai para o git)
+const EMAILJS_SERVICE_ID = environment.emailjs.serviceId;
+const EMAILJS_TEMPLATE_ID = environment.emailjs.templateId;
+const EMAILJS_PUBLIC_KEY = environment.emailjs.publicKey;
 
 @Injectable({ providedIn: 'root' })
 export class EmailService {

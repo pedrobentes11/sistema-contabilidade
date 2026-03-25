@@ -1,16 +1,12 @@
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { BehaviorSubject } from 'rxjs';
+import { environment } from '../../../environments/environment';
 
 export interface Usuario {
   nome: string;
   login: string;
 }
-
-// Credenciais válidas — adicione/altere quantas quiser aqui
-const USUARIOS: { login: string; senha: string; nome: string }[] = [
-  { login: 'admin', senha: 'admin123', nome: 'Administrador' },
-];
 
 const SESSION_KEY = 'contafacil_usuario';
 
@@ -32,8 +28,9 @@ export class AuthService {
   }
 
   login(login: string, senha: string): boolean {
-    const encontrado = USUARIOS.find(
-      u => u.login === login.trim().toLowerCase() && u.senha === senha
+    const encontrado = environment.usuarios.find(
+      (u: { login: string; senha: string }) =>
+        u.login === login.trim().toLowerCase() && u.senha === senha
     );
     if (!encontrado) return false;
 
