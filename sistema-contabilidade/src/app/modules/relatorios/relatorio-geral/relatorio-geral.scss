@@ -1,0 +1,118 @@
+.relatorio-page {
+  display: flex; flex-direction: column; gap: 20px;
+
+  .page-header {
+    display: flex; align-items: center;
+    .header-title {
+      display: flex; align-items: center; gap: 12px;
+      mat-icon { font-size: 36px; width: 36px; height: 36px; color: #1565c0; }
+      h1 { margin: 0; font-size: 22px; font-weight: 700; color: #1a237e; }
+      span { font-size: 13px; color: #888; }
+    }
+  }
+
+  .filtros-card {
+    padding: 16px !important; border-radius: 12px !important;
+    .filtros-row {
+      display: flex; gap: 12px; align-items: flex-start; flex-wrap: wrap;
+      mat-form-field { flex: 1; min-width: 160px; }
+      button { height: 56px; flex-shrink: 0; }
+    }
+  }
+
+  .kpi-grid {
+    display: grid; grid-template-columns: repeat(6, 1fr); gap: 14px;
+    .kpi {
+      border-radius: 12px !important; padding: 14px !important;
+      display: flex; align-items: center; gap: 10px;
+      mat-icon { font-size: 28px; width: 28px; height: 28px; }
+      div { display: flex; flex-direction: column; }
+      .valor { font-size: 15px; font-weight: 700; }
+      .label { font-size: 10px; color: #666; }
+      &.receita { border-left: 4px solid #388e3c; mat-icon { color: #388e3c; } .valor { color: #388e3c; } }
+      &.despesa { border-left: 4px solid #d32f2f; mat-icon { color: #d32f2f; } .valor { color: #d32f2f; } }
+      &.saldo   { border-left: 4px solid #1565c0; mat-icon { color: #1565c0; } .valor { color: #1565c0; }
+        &.negativo { border-left-color: #c62828; mat-icon { color: #c62828; } .valor { color: #c62828; } }
+      }
+      &.clientes { border-left: 4px solid #7b1fa2; mat-icon { color: #7b1fa2; } .valor { color: #7b1fa2; } }
+      &.boletos  { border-left: 4px solid #f57c00; mat-icon { color: #f57c00; } .valor { color: #f57c00; } }
+      &.nfs      { border-left: 4px solid #00838f; mat-icon { color: #00838f; } .valor { color: #00838f; } }
+    }
+  }
+
+  .grafico-card {
+    border-radius: 12px !important;
+    .grafico-barras {
+      display: flex; align-items: flex-end; gap: 12px; height: 200px; padding: 16px 0 8px;
+      .mes-col {
+        flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px;
+        .barras {
+          display: flex; gap: 4px; align-items: flex-end; height: 160px; width: 100%;
+          .bar-wrap { flex: 1; display: flex; align-items: flex-end; height: 100%; }
+          .bar {
+            width: 100%; border-radius: 4px 4px 0 0; transition: height 0.3s;
+            min-height: 2px;
+            &.receita { background: #388e3c; }
+            &.despesa { background: #d32f2f; }
+          }
+        }
+        .mes-label { font-size: 11px; color: #888; font-weight: 600; }
+        .saldo-label { font-size: 10px; font-weight: 700;
+          &.pos { color: #2e7d32; } &.neg { color: #c62828; }
+        }
+      }
+    }
+    .legenda {
+      display: flex; gap: 16px; padding: 8px 0;
+      .leg-item { display: flex; align-items: center; gap: 6px; font-size: 12px; color: #555; }
+      .dot { width: 12px; height: 12px; border-radius: 50%;
+        &.receita { background: #388e3c; }
+        &.despesa { background: #d32f2f; }
+      }
+    }
+  }
+
+  .categorias-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 20px;
+    .cat-card {
+      border-radius: 12px !important;
+      .empty-cat { color: #aaa; text-align: center; padding: 24px; }
+      .cat-item {
+        margin-bottom: 12px;
+        .cat-info { display: flex; justify-content: space-between; margin-bottom: 4px;
+          .cat-nome { font-size: 12px; color: #444; }
+          .cat-valor { font-size: 12px; font-weight: 700;
+            &.receita { color: #2e7d32; }
+            &.despesa { color: #c62828; }
+          }
+        }
+        .cat-bar-bg { background: #f0f0f0; border-radius: 4px; height: 8px;
+          .cat-bar { height: 100%; border-radius: 4px; transition: width 0.3s;
+            &.receita { background: #388e3c; }
+            &.despesa { background: #d32f2f; }
+          }
+        }
+      }
+    }
+  }
+
+  .tabela-meses {
+    border-radius: 12px !important;
+    .comp-table {
+      width: 100%; border-collapse: collapse;
+      th, td { padding: 10px 14px; text-align: left; border-bottom: 1px solid #eee; font-size: 13px; }
+      th { font-weight: 700; color: #888; font-size: 11px; text-transform: uppercase; background: #fafafa; }
+      .val { font-weight: 600;
+        &.receita { color: #2e7d32; }
+        &.despesa { color: #c62828; }
+        &.pos { color: #1565c0; }
+        &.neg { color: #c62828; }
+      }
+    }
+  }
+}
+
+@media (max-width: 1100px) {
+  .kpi-grid { grid-template-columns: repeat(3, 1fr); }
+  .categorias-grid { grid-template-columns: 1fr; }
+}

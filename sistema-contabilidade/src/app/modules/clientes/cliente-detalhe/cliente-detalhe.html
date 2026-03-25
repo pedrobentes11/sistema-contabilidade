@@ -1,0 +1,234 @@
+@if (carregando) {
+  <div class="loading"><mat-spinner></mat-spinner></div>
+} @else if (!cliente) {
+  <div class="not-found">
+    <mat-icon>person_off</mat-icon>
+    <p>Cliente não encontrado</p>
+    <button mat-raised-button routerLink="/clientes">Voltar</button>
+  </div>
+} @else {
+  <div class="detalhe-page">
+    <!-- Header do cliente -->
+    <div class="cliente-header">
+      <button mat-icon-button (click)="router.navigate(['/clientes'])">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <div class="header-avatar" [class]="cliente.tipoPessoa === 'JURIDICA' ? 'pj' : 'pf'">
+        <mat-icon>{{ cliente.tipoPessoa === 'JURIDICA' ? 'business' : 'person' }}</mat-icon>
+      </div>
+      <div class="header-info">
+        <h2>{{ nome }}</h2>
+        <span class="cnpj-cpf">{{ cnpjCpf }}</span>
+        @if (cliente.nomeFantasia) {
+          <span class="fantasia">{{ cliente.nomeFantasia }}</span>
+        }
+        <span class="status-badge" [class]="'status-' + cliente.status.toLowerCase()">{{ cliente.status }}</span>
+      </div>
+      <div class="header-actions">
+        <button mat-stroked-button [routerLink]="['/clientes', cliente.id, 'editar']">
+          <mat-icon>edit</mat-icon> Editar
+        </button>
+        <button mat-stroked-button [routerLink]="['/boletos/novo']" [queryParams]="{clienteId: cliente.id}">
+          <mat-icon>payments</mat-icon> Emitir Boleto
+        </button>
+        <button mat-stroked-button [routerLink]="['/financeiro/lancamentos/novo']" [queryParams]="{clienteId: cliente.id}">
+          <mat-icon>add</mat-icon> Lançamento
+        </button>
+        <button mat-stroked-button (click)="enviarEmailExtratoAsync()">
+          <mat-icon>email</mat-icon> Enviar Extrato
+        </button>
+      </div>
+    </div>
+
+    <!-- Cards de resumo financeiro -->
+    @if (resumo) {
+      <div class="resumo-grid">
+        <mat-card class="resumo-card receita">
+          <mat-icon>trending_up</mat-icon>
+          <div>
+            <span class="valor">{{ formatCurrency(resumo.totalReceitas) }}</span>
+            <span class="label">Total Receitas</span>
+          </div>
+        </mat-card>
+        <mat-card class="resumo-card despesa">
+          <mat-icon>trending_down</mat-icon>
+          <div>
+            <span class="valor">{{ formatCurrency(resumo.totalDespesas) }}</span>
+            <span class="label">Total Despesas</span>
+          </div>
+        </mat-card>
+        <mat-card class="resumo-card saldo" [class.positivo]="resumo.saldo >= 0">
+          <mat-icon>{{ resumo.saldo >= 0 ? 'account_balance' : 'warning' }}</mat-icon>
+          <div>
+            <span class="valor">{{ formatCurrency(resumo.saldo) }}</span>
+            <span class="label">Saldo</span>
+          </div>
+        </mat-card>
+        <mat-card class="resumo-card pendente">
+          <mat-icon>pending</mat-icon>
+          <div>
+            <span class="valor">{{ formatCurrency(resumo.receitasPendentes) }}</span>
+            <span class="label">A Receber</span>
+          </div>
+        </mat-card>
+      </div>
+    }
+
+    <!-- Tabs -->
+    <mat-card class="tabs-card">
+      <mat-tab-group [(selectedIndex)]="tabAtiva">
+        <!-- Dados do cliente -->
+        <mat-tab label="Dados Cadastrais">
+          <div class="tab-content dados-grid">
+            @if (cliente.tipoPessoa === 'JURIDICA') {
+              <div class="dado-group">
+                <h4>Empresa</h4>
+                <div class="dado-item"><span>Razão Social</span><strong>{{ cliente.razaoSocial }}</strong></div>
+                <div class="dado-item"><span>CNPJ</span><strong>{{ cliente.cnpj }}</strong></div>
+                @if (cliente.regimeTributario) {
+                  <div class="dado-item"><span>Regime</span><strong>{{ cliente.regimeTributario }}</strong></div>
+                }
+                @if (cliente.cnae) {
+                  <div class="dado-item"><span>CNAE</span><strong>{{ cliente.cnae }}</strong></div>
+                }
+                @if (cliente.inscricaoEstadual) {
+                  <div class="dado-item"><span>Insc. Estadual</span><strong>{{ cliente.inscricaoEstadual }}</strong></div>
+                }
+              </div>
+            } @else {
+              <div class="dado-group">
+                <h4>Pessoa Física</h4>
+                <div class="dado-item"><span>Nome</span><strong>{{ cliente.nomeCompleto }}</strong></div>
+                <div class="dado-item"><span>CPF</span><strong>{{ cliente.cpf }}</strong></div>
+                @if (cliente.rg) { <div class="dado-item"><span>RG</span><strong>{{ cliente.rg }}</strong></div> }
+              </div>
+            }
+
+            <div class="dado-group">
+              <h4>Contato</h4>
+              <div class="dado-item"><span>E-mail</span><strong>{{ cliente.contato.email }}</strong></div>
+              @if (cliente.contato.telefone) {
+                <div class="dado-item"><span>Telefone</span><strong>{{ cliente.contato.telefone }}</strong></div>
+              }
+              @if (cliente.contato.celular) {
+                <div class="dado-item"><span>Celular</span><strong>{{ cliente.contato.celular }}</strong></div>
+              }
+            </div>
+
+            <div class="dado-group">
+              <h4>Endereço</h4>
+              <div class="dado-item"><span>CEP</span><strong>{{ cliente.endereco.cep }}</strong></div>
+              <div class="dado-item"><span>Logradouro</span><strong>{{ cliente.endereco.logradouro }}, {{ cliente.endereco.numero }}</strong></div>
+              <div class="dado-item"><span>Bairro</span><strong>{{ cliente.endereco.bairro }}</strong></div>
+              <div class="dado-item"><span>Cidade/UF</span><strong>{{ cliente.endereco.cidade }} / {{ cliente.endereco.estado }}</strong></div>
+            </div>
+
+            <div class="dado-group">
+              <h4>Dados Contábeis</h4>
+              @if (cliente.honorarioMensal) {
+                <div class="dado-item"><span>Honorário Mensal</span><strong>{{ formatCurrency(cliente.honorarioMensal) }}</strong></div>
+              }
+              @if (cliente.diaVencimentoHonorario) {
+                <div class="dado-item"><span>Vencimento</span><strong>Todo dia {{ cliente.diaVencimentoHonorario }}</strong></div>
+              }
+              <div class="dado-item"><span>Cadastrado em</span><strong>{{ cliente.dataCadastro | date:'dd/MM/yyyy' }}</strong></div>
+            </div>
+          </div>
+        </mat-tab>
+
+        <!-- Lançamentos -->
+        <mat-tab [label]="'Lançamentos (' + lancamentos.length + ')'">
+          <div class="tab-content">
+            @if (lancamentos.length === 0) {
+              <div class="empty-tab">
+                <mat-icon>receipt_long</mat-icon>
+                <p>Nenhum lançamento registrado</p>
+                <button mat-raised-button color="primary" [routerLink]="['/financeiro/lancamentos/novo']" [queryParams]="{clienteId: cliente.id}">
+                  Novo Lançamento
+                </button>
+              </div>
+            } @else {
+              <div class="lancamentos-lista">
+                @for (l of lancamentos; track l.id) {
+                  <div class="lancamento-item" [class]="l.tipo.toLowerCase()">
+                    <mat-icon>{{ l.tipo === 'RECEITA' ? 'arrow_downward' : 'arrow_upward' }}</mat-icon>
+                    <div class="lanc-info">
+                      <span class="lanc-desc">{{ l.descricao }}</span>
+                      <span class="lanc-cat">{{ l.categoria }} | {{ l.dataLancamento | date:'dd/MM/yyyy' }}</span>
+                    </div>
+                    <div class="lanc-val">
+                      <span class="valor" [class]="l.tipo.toLowerCase()">{{ formatCurrency(l.valor) }}</span>
+                      <span class="status-small">{{ l.status }}</span>
+                    </div>
+                  </div>
+                }
+              </div>
+            }
+          </div>
+        </mat-tab>
+
+        <!-- Boletos -->
+        <mat-tab [label]="'Boletos (' + boletos.length + ')'">
+          <div class="tab-content">
+            @if (boletos.length === 0) {
+              <div class="empty-tab">
+                <mat-icon>payments</mat-icon>
+                <p>Nenhum boleto emitido</p>
+                <button mat-raised-button color="primary" [routerLink]="['/boletos/novo']" [queryParams]="{clienteId: cliente.id}">
+                  Emitir Boleto
+                </button>
+              </div>
+            } @else {
+              <div class="lancamentos-lista">
+                @for (b of boletos; track b.id) {
+                  <div class="lancamento-item boleto">
+                    <mat-icon>payments</mat-icon>
+                    <div class="lanc-info">
+                      <span class="lanc-desc">{{ b.descricao }}</span>
+                      <span class="lanc-cat">Vence: {{ b.dataVencimento | date:'dd/MM/yyyy' }} | Nº {{ b.nossoNumero }}</span>
+                    </div>
+                    <div class="lanc-val">
+                      <span class="valor">{{ formatCurrency(b.valor) }}</span>
+                      <span class="status-small" [class]="'boleto-' + b.status.toLowerCase()">{{ b.status }}</span>
+                    </div>
+                  </div>
+                }
+              </div>
+            }
+          </div>
+        </mat-tab>
+
+        <!-- Notas Fiscais -->
+        <mat-tab [label]="'Notas Fiscais (' + notas.length + ')'">
+          <div class="tab-content">
+            @if (notas.length === 0) {
+              <div class="empty-tab">
+                <mat-icon>receipt</mat-icon>
+                <p>Nenhuma nota fiscal emitida</p>
+                <button mat-raised-button color="primary" routerLink="/notas-fiscais">
+                  Emitir Nota Fiscal
+                </button>
+              </div>
+            } @else {
+              <div class="lancamentos-lista">
+                @for (n of notas; track n.id) {
+                  <div class="lancamento-item nf">
+                    <mat-icon>receipt</mat-icon>
+                    <div class="lanc-info">
+                      <span class="lanc-desc">NF {{ n.numero }} — {{ n.tipo }}</span>
+                      <span class="lanc-cat">Emissão: {{ n.dataEmissao | date:'dd/MM/yyyy' }}</span>
+                    </div>
+                    <div class="lanc-val">
+                      <span class="valor">{{ formatCurrency(n.valorBruto) }}</span>
+                      <span class="status-small">{{ n.status }}</span>
+                    </div>
+                  </div>
+                }
+              </div>
+            }
+          </div>
+        </mat-tab>
+      </mat-tab-group>
+    </mat-card>
+  </div>
+}

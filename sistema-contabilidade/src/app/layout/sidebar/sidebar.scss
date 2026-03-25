@@ -1,0 +1,136 @@
+.sidebar {
+  width: 260px;
+  height: 100vh;
+  background: linear-gradient(180deg, #1a237e 0%, #283593 60%, #1565c0 100%);
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 100;
+  box-shadow: 4px 0 16px rgba(0, 0, 0, 0.25);
+
+  .sidebar-header {
+    padding: 24px 20px 16px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+
+    .logo-container {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+
+      .logo-icon {
+        font-size: 36px;
+        width: 36px;
+        height: 36px;
+        color: #90caf9;
+      }
+
+      .logo-text {
+        display: flex;
+        flex-direction: column;
+
+        .logo-title {
+          font-size: 20px;
+          font-weight: 700;
+          letter-spacing: 0.5px;
+          color: #fff;
+        }
+
+        .logo-subtitle {
+          font-size: 11px;
+          color: rgba(255, 255, 255, 0.65);
+          letter-spacing: 0.5px;
+        }
+      }
+    }
+  }
+
+  .sidebar-nav {
+    flex: 1;
+    overflow-y: auto;
+    padding: 12px 0;
+
+    ul {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+
+    .nav-item {
+      .nav-link {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 12px 20px;
+        cursor: pointer;
+        border-radius: 8px;
+        margin: 2px 8px;
+        transition: background 0.2s, transform 0.1s;
+        font-size: 14px;
+        font-weight: 500;
+        color: rgba(255, 255, 255, 0.85);
+
+        mat-icon {
+          font-size: 20px;
+          width: 20px;
+          height: 20px;
+          color: rgba(255, 255, 255, 0.7);
+        }
+
+        .expand-icon {
+          margin-left: auto;
+          font-size: 18px;
+          width: 18px;
+          height: 18px;
+        }
+
+        &:hover {
+          background: rgba(255, 255, 255, 0.12);
+          color: #fff;
+          mat-icon { color: #fff; }
+        }
+      }
+
+      &.active > .nav-link {
+        background: rgba(255, 255, 255, 0.2);
+        color: #fff;
+        font-weight: 700;
+        mat-icon { color: #90caf9; }
+      }
+
+      &.sub-item .nav-link {
+        padding: 9px 20px 9px 40px;
+        font-size: 13px;
+        font-weight: 400;
+      }
+
+      .sub-menu {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        background: rgba(0, 0, 0, 0.12);
+        border-radius: 8px;
+        margin: 0 8px;
+        overflow: hidden;
+      }
+    }
+  }
+
+  .sidebar-footer {
+    padding: 14px 20px;
+    border-top: 1px solid rgba(255, 255, 255, 0.12);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 11px;
+    color: rgba(255, 255, 255, 0.4);
+
+    mat-icon {
+      font-size: 14px;
+      width: 14px;
+      height: 14px;
+    }
+  }
+}

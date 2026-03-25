@@ -1,0 +1,89 @@
+.visualizar-page {
+  display: flex; flex-direction: column; gap: 20px; max-width: 960px; margin: 0 auto;
+
+  .loading, .not-found {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    height: 300px; gap: 16px; color: #aaa;
+    mat-icon { font-size: 64px; width: 64px; height: 64px; }
+  }
+
+  .page-header {
+    display: flex; align-items: center; gap: 12px;
+    .header-info {
+      flex: 1; display: flex; align-items: center; gap: 12px;
+      h1 { margin: 0; font-size: 20px; font-weight: 700; color: #1a237e; }
+    }
+    .header-actions { display: flex; gap: 8px; }
+    .status-badge {
+      padding: 4px 14px; border-radius: 20px; font-size: 12px; font-weight: 700;
+      &.emitido   { background: #e3f2fd; color: #1565c0; }
+      &.pago      { background: #e8f5e9; color: #2e7d32; }
+      &.vencido   { background: #ffebee; color: #c62828; }
+      &.cancelado { background: #f5f5f5; color: #757575; }
+    }
+  }
+
+  .boleto-preview {
+    border-radius: 12px !important;
+    font-family: 'Courier New', monospace;
+    border: 2px solid #1565c0;
+
+    .boleto-header {
+      display: flex; align-items: center; gap: 16px; padding: 12px 16px; background: #1a237e;
+      .banco { display: flex; align-items: center; gap: 6px; color: #fff; font-weight: 700; font-size: 14px;
+        mat-icon { color: #fff; }
+      }
+      .codigo-banco { color: #90caf9; font-weight: 700; font-size: 16px; border-left: 2px solid #90caf9; padding-left: 16px; }
+      .linha-digitavel { flex: 1; text-align: right; color: #e3f2fd; font-size: 12px; letter-spacing: 1px; }
+    }
+
+    .boleto-body {
+      padding: 16px;
+
+      .bloco-info {
+        .info-row {
+          display: flex; gap: 16px; margin-bottom: 12px;
+          .info-campo {
+            display: flex; flex-direction: column; gap: 2px; flex: 1;
+            label { font-size: 9px; font-weight: 700; color: #888; letter-spacing: 0.5px; text-transform: uppercase; }
+            span { font-size: 13px; color: #222; }
+            small { font-size: 11px; color: #555; }
+            .mono { font-family: 'Courier New', monospace; font-weight: 700; letter-spacing: 2px; }
+            .destaque { font-weight: 700; color: #1565c0; }
+            &.flex-3 { flex: 3; }
+            &.valor-destaque span { font-size: 18px; font-weight: 700; color: #1a237e; }
+          }
+        }
+        .instrucoes {
+          background: #f9f9f9; padding: 10px 14px; border-radius: 6px; margin-top: 8px;
+          label { font-size: 9px; font-weight: 700; color: #888; letter-spacing: 0.5px; display: block; margin-bottom: 4px; }
+          p { margin: 2px 0; font-size: 12px; color: #444; }
+        }
+      }
+
+      .barcode-section {
+        display: flex; justify-content: center; margin: 16px 0;
+        .barcode {
+          display: flex; align-items: flex-end; gap: 1px; height: 80px; background: #fff; padding: 0 16px;
+          .bar { background: #000; display: inline-block; }
+        }
+      }
+
+      .pago-stamp {
+        display: flex; align-items: center; justify-content: center; gap: 8px;
+        background: #e8f5e9; color: #2e7d32; font-weight: 700; font-size: 16px;
+        padding: 12px; border-radius: 8px; border: 2px solid #4caf50;
+        mat-icon { color: #2e7d32; }
+      }
+    }
+  }
+
+  .email-card {
+    border-radius: 12px !important;
+    .email-row {
+      display: flex; gap: 12px; align-items: flex-start;
+      mat-form-field { flex: 3; }
+      button { height: 56px; display: flex; align-items: center; gap: 6px; }
+    }
+  }
+}

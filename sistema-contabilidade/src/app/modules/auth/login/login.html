@@ -1,0 +1,75 @@
+<div class="login-page">
+
+  <!-- Fundo decorativo -->
+  <div class="login-bg">
+    <div class="circle c1"></div>
+    <div class="circle c2"></div>
+    <div class="circle c3"></div>
+  </div>
+
+  <!-- Card central -->
+  <div class="login-card mat-elevation-z8">
+
+    <!-- Logo / Cabeçalho -->
+    <div class="login-header">
+      <div class="logo-icon">
+        <mat-icon>account_balance</mat-icon>
+      </div>
+      <h1>ContaFácil</h1>
+      <p class="subtitulo">Sistema de Gestão Contábil</p>
+    </div>
+
+    <!-- Formulário -->
+    <form [formGroup]="form" (ngSubmit)="entrar()" autocomplete="off">
+
+      <mat-form-field appearance="outline" class="campo-full">
+        <mat-label>Usuário</mat-label>
+        <input matInput formControlName="login" placeholder="Digite seu usuário"
+               autocomplete="username">
+        <mat-icon matPrefix>person_outline</mat-icon>
+        <mat-error *ngIf="form.get('login')?.hasError('required')">
+          Usuário obrigatório
+        </mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="campo-full">
+        <mat-label>Senha</mat-label>
+        <input matInput formControlName="senha"
+               [type]="senhaVisivel ? 'text' : 'password'"
+               placeholder="Digite sua senha"
+               autocomplete="current-password">
+        <mat-icon matPrefix>lock_outline</mat-icon>
+        <button type="button" mat-icon-button matSuffix
+                (click)="senhaVisivel = !senhaVisivel"
+                [attr.aria-label]="'Mostrar senha'"
+                matTooltip="{{ senhaVisivel ? 'Ocultar' : 'Mostrar' }} senha">
+          <mat-icon>{{ senhaVisivel ? 'visibility_off' : 'visibility' }}</mat-icon>
+        </button>
+        <mat-error *ngIf="form.get('senha')?.hasError('required')">
+          Senha obrigatória
+        </mat-error>
+        <mat-error *ngIf="form.get('senha')?.hasError('minlength')">
+          Mínimo 6 caracteres
+        </mat-error>
+      </mat-form-field>
+
+      <!-- Mensagem de erro de credenciais -->
+      <div class="erro-credenciais" *ngIf="erro">
+        <mat-icon>error_outline</mat-icon>
+        <span>{{ erro }}</span>
+      </div>
+
+      <!-- Botão -->
+      <button type="submit" mat-raised-button color="primary"
+              class="btn-entrar" [disabled]="carregando">
+        <mat-spinner *ngIf="carregando" diameter="20"></mat-spinner>
+        <mat-icon *ngIf="!carregando">login</mat-icon>
+        {{ carregando ? 'Verificando...' : 'Entrar' }}
+      </button>
+
+    </form>
+
+    <p class="rodape">© {{ ano }} ContaFácil · Acesso restrito</p>
+  </div>
+
+</div>

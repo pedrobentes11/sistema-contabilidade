@@ -1,0 +1,100 @@
+.app-header {
+  background: #fff !important;
+  color: #333 !important;
+  border-bottom: 1px solid #e0e0e0;
+  height: 64px;
+  padding: 0 24px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.07);
+  position: fixed;
+  top: 0;
+  left: 260px;
+  right: 0;
+  z-index: 99;
+
+  .header-left {
+    .page-title {
+      font-size: 20px;
+      font-weight: 600;
+      color: #1a237e;
+    }
+  }
+
+  .spacer {
+    flex: 1;
+  }
+
+  .header-right {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    .date-display {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      color: #666;
+      margin-right: 8px;
+
+      mat-icon {
+        font-size: 16px;
+        width: 16px;
+        height: 16px;
+        color: #1976d2;
+      }
+    }
+
+    .user-avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #1a237e, #1976d2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      margin-left: 4px;
+
+      mat-icon {
+        color: #fff;
+        font-size: 20px;
+        width: 20px;
+        height: 20px;
+      }
+    }
+
+    .user-chip {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: #e3f2fd;
+      border-radius: 20px;
+      padding: 4px 12px 4px 8px;
+      margin-left: 4px;
+
+      mat-icon {
+        color: #1565c0;
+        font-size: 18px;
+        width: 18px;
+        height: 18px;
+      }
+
+      .user-nome {
+        font-size: 13px;
+        font-weight: 500;
+        color: #1a237e;
+        max-width: 120px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+    }
+
+    .btn-sair {
+      color: #e53935 !important;
+      opacity: .8;
+      transition: opacity .2s;
+      &:hover { opacity: 1; }
+    }
+  }
+}

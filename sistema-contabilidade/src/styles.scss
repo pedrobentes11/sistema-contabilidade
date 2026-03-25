@@ -1,0 +1,159 @@
+// Include theming for Angular Material with `mat.theme()`.
+// This Sass mixin will define CSS variables that are used for styling Angular Material
+// components according to the Material 3 design spec.
+// Learn more about theming and how to use it for your application's
+// custom components at https://material.angular.dev/guide/theming
+@use '@angular/material' as mat;
+
+html {
+  height: 100%;
+  @include mat.theme(
+    (
+      color: (
+        primary: mat.$azure-palette,
+        tertiary: mat.$blue-palette,
+      ),
+      typography: Roboto,
+      density: 0,
+    )
+  );
+}
+
+body {
+  // Default the application to a light color theme. This can be changed to
+  // `dark` to enable the dark color theme, or to `light dark` to defer to the
+  // user's system settings.
+  color-scheme: light;
+
+  // Set a default background, font and text colors for the application using
+  // Angular Material's system-level CSS variables. Learn more about these
+  // variables at https://material.angular.dev/guide/system-variables
+  background-color: var(--mat-sys-surface);
+  color: var(--mat-sys-on-surface);
+  font: var(--mat-sys-body-medium);
+
+  // Reset the user agent margin.
+  margin: 0;
+  height: 100%;
+}
+/* You can add global styles to this file, and also import other style files */
+
+/* ===================== RESET & BASE ===================== */
+*, *::before, *::after { box-sizing: border-box; }
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* ===================== SCROLLBAR ===================== */
+::-webkit-scrollbar { width: 7px; height: 7px; }
+::-webkit-scrollbar-track { background: #f0f2f5; }
+::-webkit-scrollbar-thumb { background: #b0bec5; border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: #78909c; }
+
+/* ===================== TYPOGRAPHY ===================== */
+h1, h2, h3, h4, h5, h6 { margin-top: 0; }
+
+/* ===================== MATERIAL OVERRIDES ===================== */
+.mat-mdc-card {
+  border-radius: 12px !important;
+}
+
+.mat-mdc-snack-bar-container {
+  &.snack-success .mdc-snackbar__surface { background: #2e7d32; color: #fff; }
+  &.snack-error   .mdc-snackbar__surface { background: #c62828; color: #fff; }
+  &.snack-warn    .mdc-snackbar__surface { background: #e65100; color: #fff; }
+}
+
+/* ===================== LAYOUT UTILITIES ===================== */
+.flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.flex-between {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.gap-8  { gap: 8px; }
+.gap-12 { gap: 12px; }
+.gap-16 { gap: 16px; }
+
+.mt-8  { margin-top: 8px; }
+.mt-16 { margin-top: 16px; }
+.mt-24 { margin-top: 24px; }
+.mb-8  { margin-bottom: 8px; }
+.mb-16 { margin-bottom: 16px; }
+
+.text-muted   { color: #78909c; }
+.text-primary { color: #1565c0; }
+.text-success { color: #2e7d32; }
+.text-danger  { color: #c62828; }
+.text-warn    { color: #e65100; }
+
+.text-right  { text-align: right; }
+.text-center { text-align: center; }
+
+.font-bold { font-weight: 600; }
+
+/* ===================== STATUS BADGES ===================== */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .4px;
+}
+
+.badge-ativo,
+.badge-emitido,
+.badge-pago,
+.badge-recebido    { background: #e8f5e9; color: #2e7d32; }
+
+.badge-inativo,
+.badge-cancelado   { background: #fce4ec; color: #b71c1c; }
+
+.badge-suspenso,
+.badge-vencido     { background: #fff3e0; color: #e65100; }
+
+.badge-pendente    { background: #e3f2fd; color: #1565c0; }
+.badge-rascunho    { background: #f3e5f5; color: #6a1b9a; }
+.badge-denegada    { background: #fbe9e7; color: #bf360c; }
+
+/* ===================== EMPTY STATE ===================== */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 48px 24px;
+  color: #90a4ae;
+
+  mat-icon, .mat-icon { font-size: 56px; width: 56px; height: 56px; opacity: .5; }
+  p { font-size: 15px; margin: 0; }
+}
+
+/* ===================== PAGE TRANSITIONS ===================== */
+.main-content > router-outlet + * {
+  animation: fadeSlideIn .18s ease-out;
+}
+
+@keyframes fadeSlideIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ===================== PRINT ===================== */
+@media print {
+  .sidebar, .app-header, .no-print { display: none !important; }
+  .main-content { margin-left: 0 !important; }
+  body { background: #fff !important; }
+}

@@ -1,0 +1,15 @@
+<ng-container *ngIf="auth.isLogado; else somenteRota">
+  <div class="app-container">
+    <app-sidebar></app-sidebar>
+    <div class="main-content">
+      <app-header></app-header>
+      <div class="page-content">
+        <router-outlet></router-outlet>
+      </div>
+    </div>
+  </div>
+</ng-container>
+
+<ng-template #somenteRota>
+  <router-outlet></router-outlet>
+</ng-template>

@@ -1,0 +1,194 @@
+<div class="lancamentos-page">
+  <!-- Cabeçalho -->
+  <div class="page-header">
+    <div class="header-title">
+      <mat-icon>account_balance_wallet</mat-icon>
+      <div>
+        <h1>Lançamentos Financeiros</h1>
+        <span>Gerencie todas as entradas e saídas</span>
+      </div>
+    </div>
+    <button mat-raised-button color="primary" routerLink="novo">
+      <mat-icon>add</mat-icon> Novo Lançamento
+    </button>
+  </div>
+
+  <!-- Cards resumo -->
+  <div class="resumo-grid">
+    <mat-card class="resumo-card receita">
+      <mat-icon>trending_up</mat-icon>
+      <div>
+        <span class="valor">{{ resumo.receitas | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}</span>
+        <span class="label">Total Receitas</span>
+      </div>
+    </mat-card>
+    <mat-card class="resumo-card despesa">
+      <mat-icon>trending_down</mat-icon>
+      <div>
+        <span class="valor">{{ resumo.despesas | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}</span>
+        <span class="label">Total Despesas</span>
+      </div>
+    </mat-card>
+    <mat-card class="resumo-card saldo" [class.negativo]="resumo.saldo < 0">
+      <mat-icon>account_balance</mat-icon>
+      <div>
+        <span class="valor">{{ resumo.saldo | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}</span>
+        <span class="label">Saldo</span>
+      </div>
+    </mat-card>
+    <mat-card class="resumo-card total">
+      <mat-icon>list_alt</mat-icon>
+      <div>
+        <span class="valor">{{ dataSource.data.length }}</span>
+        <span class="label">Registros Filtrados</span>
+      </div>
+    </mat-card>
+  </div>
+
+  <!-- Filtros -->
+  <mat-card class="filtros-card">
+    <div class="filtros-row">
+      <mat-form-field appearance="outline" class="busca-field">
+        <mat-label>Pesquisar</mat-label>
+        <input matInput [(ngModel)]="buscaTexto" (ngModelChange)="aplicarFiltros()" placeholder="Descrição ou categoria...">
+        <mat-icon matPrefix>search</mat-icon>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Tipo</mat-label>
+        <mat-select [(ngModel)]="tipoFiltro" (ngModelChange)="aplicarFiltros()">
+          <mat-option value="">Todos</mat-option>
+          @for (t of tiposLancamento; track t) {
+            <mat-option [value]="t">{{ t }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Status</mat-label>
+        <mat-select [(ngModel)]="statusFiltro" (ngModelChange)="aplicarFiltros()">
+          <mat-option value="">Todos</mat-option>
+          @for (s of statusList; track s) {
+            <mat-option [value]="s">{{ s }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Cliente</mat-label>
+        <mat-select [(ngModel)]="clienteIdFiltro" (ngModelChange)="aplicarFiltros()">
+          <mat-option value="">Todos</mat-option>
+          @for (c of clientes; track c.id) {
+            <mat-option [value]="c.id">{{ c.nome }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+
+      <button mat-stroked-button (click)="limparFiltros()" class="limpar-btn">
+        <mat-icon>filter_alt_off</mat-icon> Limpar
+      </button>
+    </div>
+  </mat-card>
+
+  <!-- Tabela -->
+  <mat-card class="tabela-card">
+    <div class="tabela-wrapper">
+      <table mat-table [dataSource]="dataSource" matSort>
+
+        <!-- Tipo -->
+        <ng-container matColumnDef="tipo">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Tipo</th>
+          <td mat-cell *matCellDef="let l">
+            <span class="tipo-badge" [class.receita]="l.tipo === 'RECEITA'" [class.despesa]="l.tipo === 'DESPESA'">
+              <mat-icon>{{ l.tipo === 'RECEITA' ? 'arrow_upward' : 'arrow_downward' }}</mat-icon>
+              {{ l.tipo }}
+            </span>
+          </td>
+        </ng-container>
+
+        <!-- Descrição -->
+        <ng-container matColumnDef="descricao">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Descrição</th>
+          <td mat-cell *matCellDef="let l">
+            <div class="desc-cell">
+              <strong>{{ l.descricao }}</strong>
+              @if (l.recorrente) { <mat-icon class="recorrente-icon" matTooltip="Recorrente">autorenew</mat-icon> }
+            </div>
+          </td>
+        </ng-container>
+
+        <!-- Cliente -->
+        <ng-container matColumnDef="cliente">
+          <th mat-header-cell *matHeaderCellDef>Cliente</th>
+          <td mat-cell *matCellDef="let l">{{ getNomeCliente(l.clienteId) }}</td>
+        </ng-container>
+
+        <!-- Categoria -->
+        <ng-container matColumnDef="categoria">
+          <th mat-header-cell *matHeaderCellDef>Categoria</th>
+          <td mat-cell *matCellDef="let l">{{ formatCategoria(l.categoria) }}</td>
+        </ng-container>
+
+        <!-- Data -->
+        <ng-container matColumnDef="data">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Data</th>
+          <td mat-cell *matCellDef="let l">
+            <div class="data-cell">
+              {{ l.dataLancamento | date:'dd/MM/yyyy':'':'pt-BR' }}
+              @if (l.dataVencimento) {
+                <small>Venc: {{ l.dataVencimento | date:'dd/MM/yyyy':'':'pt-BR' }}</small>
+              }
+            </div>
+          </td>
+        </ng-container>
+
+        <!-- Valor -->
+        <ng-container matColumnDef="valor">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Valor</th>
+          <td mat-cell *matCellDef="let l">
+            <span class="valor-cell" [class.receita]="l.tipo === 'RECEITA'" [class.despesa]="l.tipo === 'DESPESA'">
+              {{ l.valor | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}
+            </span>
+          </td>
+        </ng-container>
+
+        <!-- Status -->
+        <ng-container matColumnDef="status">
+          <th mat-header-cell *matHeaderCellDef>Status</th>
+          <td mat-cell *matCellDef="let l">
+            <span class="status-badge" [ngClass]="getStatusClass(l.status)">{{ l.status }}</span>
+          </td>
+        </ng-container>
+
+        <!-- Ações -->
+        <ng-container matColumnDef="acoes">
+          <th mat-header-cell *matHeaderCellDef>Ações</th>
+          <td mat-cell *matCellDef="let l">
+            <button mat-icon-button [routerLink]="[l.id, 'editar']" matTooltip="Editar">
+              <mat-icon>edit</mat-icon>
+            </button>
+            @if (l.status === 'PENDENTE' || l.status === 'VENCIDO') {
+              <button mat-icon-button color="primary" (click)="marcarComoPago(l.id)" matTooltip="Marcar como pago">
+                <mat-icon>check_circle</mat-icon>
+              </button>
+            }
+            <button mat-icon-button color="warn" (click)="excluir(l.id)" matTooltip="Excluir">
+              <mat-icon>delete</mat-icon>
+            </button>
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+        <tr class="mat-row no-data" *matNoDataRow>
+          <td [attr.colspan]="displayedColumns.length">
+            <mat-icon>inbox</mat-icon>
+            <span>Nenhum lançamento encontrado</span>
+            <button mat-stroked-button routerLink="novo">Criar lançamento</button>
+          </td>
+        </tr>
+      </table>
+    </div>
+    <mat-paginator [pageSize]="15" [pageSizeOptions]="[10, 15, 25, 50]" showFirstLastButtons></mat-paginator>
+  </mat-card>
+</div>

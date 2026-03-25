@@ -1,0 +1,67 @@
+.form-page {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  max-width: 900px;
+  margin: 0 auto;
+
+  .page-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    .header-title {
+      display: flex; align-items: center; gap: 12px;
+      mat-icon { font-size: 32px; width: 32px; height: 32px;
+        &.receita { color: #2e7d32; }
+        &.despesa { color: #c62828; }
+      }
+      h1 { margin: 0; font-size: 20px; font-weight: 700; color: #1a237e; }
+      span { font-size: 13px; color: #888; }
+    }
+  }
+
+  .form-card {
+    border-radius: 12px !important;
+    mat-card-header { padding-bottom: 8px; }
+    mat-card-content { padding-top: 12px; }
+  }
+
+  .tipo-toggle {
+    display: flex;
+    gap: 16px;
+    button {
+      flex: 1;
+      height: 52px;
+      font-size: 15px;
+      font-weight: 700;
+      mat-icon { margin-right: 8px; }
+      &.active-receita { background: #2e7d32 !important; color: #fff !important; }
+      &.active-despesa { background: #c62828 !important; color: #fff !important; }
+    }
+  }
+
+  .form-row {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin-bottom: 8px;
+    &.align-center { align-items: center; }
+    mat-form-field { flex: 1; min-width: 180px; }
+    .flex-2 { flex: 2; }
+    .flex-3 { flex: 3; }
+    mat-checkbox { flex-shrink: 0; }
+  }
+
+  .full-width { width: 100%; }
+
+  .form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    padding: 8px 0;
+    button {
+      display: flex; align-items: center; gap: 6px;
+      min-width: 120px;
+    }
+  }
+}

@@ -1,0 +1,167 @@
+<div class="nf-visualizar-page">
+  @if (loading) {
+    <div class="loading"><mat-spinner></mat-spinner></div>
+  } @else if (!nf) {
+    <div class="not-found">
+      <mat-icon>description</mat-icon>
+      <h2>Nota Fiscal não encontrada</h2>
+      <button mat-raised-button (click)="voltar()">Voltar</button>
+    </div>
+  } @else {
+    <!-- Cabeçalho -->
+    <div class="page-header">
+      <button mat-icon-button (click)="voltar()"><mat-icon>arrow_back</mat-icon></button>
+      <div class="header-info">
+        <h1>Nota Fiscal Nº {{ nf.numero || 'Rascunho' }}</h1>
+        <span class="status-badge" [ngClass]="getStatusClass(nf.status)">{{ nf.status }}</span>
+      </div>
+      <div class="header-actions">
+        <button mat-stroked-button (click)="gerarPdf()" [disabled]="gerandoPdf">
+          @if (gerandoPdf) { <mat-spinner diameter="18"></mat-spinner> }
+          @else { <mat-icon>picture_as_pdf</mat-icon> }
+          PDF
+        </button>
+        @if (nf.status === 'RASCUNHO') {
+          <button mat-raised-button color="primary" (click)="emitir()">
+            <mat-icon>send</mat-icon> Emitir NF
+          </button>
+        }
+        @if (nf.status === 'EMITIDA') {
+          <button mat-raised-button color="warn" (click)="cancelar()">
+            <mat-icon>cancel</mat-icon> Cancelar
+          </button>
+        }
+      </div>
+    </div>
+
+    <!-- Documento NF -->
+    <mat-card class="nf-doc">
+      <div class="nf-cabecalho">
+        <div class="emitente">
+          <mat-icon class="nf-logo">description</mat-icon>
+          <div>
+            <h2>{{ nf.emitenteNome }}</h2>
+            <p>CNPJ: {{ nf.emitenteCnpj }}</p>
+            @if (nf.emitenteInscricaoMunicipal) { <p>IM: {{ nf.emitenteInscricaoMunicipal }}</p> }
+            <p>{{ nf.emitenteEndereco }}</p>
+          </div>
+        </div>
+        <div class="nf-id">
+          <div class="nf-tipo">{{ nf.tipo }}</div>
+          <div class="nf-num">Nº {{ nf.numero || '—' }}</div>
+          <div class="nf-data">{{ nf.dataEmissao | date:'dd/MM/yyyy':'':'pt-BR' }}</div>
+        </div>
+      </div>
+
+      <mat-divider></mat-divider>
+
+      <!-- Tomador -->
+      <div class="secao">
+        <h3>Tomador de Serviços</h3>
+        <div class="dados-grid">
+          <div class="dado"><label>Razão Social/Nome</label><span>{{ nf.tomadorNome }}</span></div>
+          <div class="dado"><label>CNPJ/CPF</label><span>{{ nf.tomadorCnpjCpf }}</span></div>
+          <div class="dado"><label>E-mail</label><span>{{ nf.tomadorEmail }}</span></div>
+          <div class="dado"><label>Endereço</label><span>{{ nf.tomadorEndereco }}</span></div>
+          @if (nf.tomadorInscricaoMunicipal) {
+            <div class="dado"><label>Inscrição Municipal</label><span>{{ nf.tomadorInscricaoMunicipal }}</span></div>
+          }
+          <div class="dado"><label>Competência</label><span>{{ nf.dataCompetencia | date:'MM/yyyy':'':'pt-BR' }}</span></div>
+        </div>
+      </div>
+
+      <mat-divider></mat-divider>
+
+      <!-- Itens / Serviços -->
+      <div class="secao">
+        <h3>Serviços Prestados</h3>
+        <div class="itens-header">
+          <span class="flex-3">Descrição</span>
+          <span>Qtd</span>
+          <span>Un</span>
+          <span>Valor Unit.</span>
+          <span>Total</span>
+        </div>
+        @for (item of nf.itens; track item.id) {
+          <div class="item-row">
+            <span class="flex-3">{{ item.descricao }}</span>
+            <span>{{ item.quantidade }}</span>
+            <span>{{ item.unidade }}</span>
+            <span>{{ item.valorUnitario | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}</span>
+            <span class="valor-item">{{ item.valorTotal | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}</span>
+          </div>
+        }
+        <div class="total-itens">
+          <span>Total dos Serviços:</span>
+          <span>{{ totalItens | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}</span>
+        </div>
+      </div>
+
+      <mat-divider></mat-divider>
+
+      <!-- Impostos -->
+      <div class="secao">
+        <h3>Impostos e Deduções</h3>
+        <div class="impostos-grid">
+          <div class="imposto"><label>Base de Cálculo</label><span>{{ nf.impostos?.baseCalculo | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}</span></div>
+          @if (nf.impostos?.valorISS) {
+            <div class="imposto"><label>ISS ({{ nf.impostos?.aliquotaISS }}%)</label><span>{{ nf.impostos.valorISS | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}</span></div>
+          }
+          @if (nf.impostos?.valorIRPJ) {
+            <div class="imposto"><label>IRPJ ({{ nf.impostos?.aliquotaIRPJ }}%)</label><span>{{ nf.impostos.valorIRPJ | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}</span></div>
+          }
+          @if (nf.impostos?.valorCSLL) {
+            <div class="imposto"><label>CSLL ({{ nf.impostos?.aliquotaCSLL }}%)</label><span>{{ nf.impostos.valorCSLL | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}</span></div>
+          }
+          @if (nf.impostos?.valorPIS) {
+            <div class="imposto"><label>PIS ({{ nf.impostos?.aliquotaPIS }}%)</label><span>{{ nf.impostos.valorPIS | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}</span></div>
+          }
+          @if (nf.impostos?.valorCOFINS) {
+            <div class="imposto"><label>COFINS ({{ nf.impostos?.aliquotaCOFINS }}%)</label><span>{{ nf.impostos.valorCOFINS | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}</span></div>
+          }
+          <div class="imposto total"><label>Total Impostos</label><span>{{ nf.impostos?.totalImpostos | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}</span></div>
+          <div class="imposto liquido"><label>Valor Líquido</label><span>{{ nf.impostos?.valorLiquido | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}</span></div>
+        </div>
+      </div>
+
+      <!-- Discriminação -->
+      <div class="secao">
+        <h3>Discriminação dos Serviços</h3>
+        <p class="discriminacao">{{ nf.discriminacaoServicos }}</p>
+      </div>
+
+      @if (nf.observacoes) {
+        <div class="secao">
+          <h3>Observações</h3>
+          <p class="discriminacao">{{ nf.observacoes }}</p>
+        </div>
+      }
+
+      @if (nf.motivoCancelamento) {
+        <div class="secao cancelamento">
+          <h3>Motivo do Cancelamento</h3>
+          <p>{{ nf.motivoCancelamento }}</p>
+        </div>
+      }
+    </mat-card>
+
+    <!-- E-mail -->
+    <mat-card class="email-card">
+      <mat-card-header><mat-card-title>Enviar por E-mail</mat-card-title></mat-card-header>
+      <mat-card-content>
+        <div class="email-row">
+          <mat-form-field appearance="outline" class="flex-3">
+            <mat-label>E-mail do destinatário</mat-label>
+            <input matInput [(ngModel)]="emailDestinatario" type="email">
+            <mat-icon matPrefix>email</mat-icon>
+          </mat-form-field>
+          <button mat-raised-button color="primary" (click)="enviarEmail()" [disabled]="enviandoEmail || !emailDestinatario">
+            @if (enviandoEmail) { <mat-spinner diameter="18"></mat-spinner> }
+            @else { <mat-icon>send</mat-icon> }
+            Enviar
+          </button>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  }
+</div>

@@ -1,0 +1,137 @@
+<div class="nf-page">
+  <div class="page-header">
+    <div class="header-title">
+      <mat-icon>description</mat-icon>
+      <div>
+        <h1>Notas Fiscais</h1>
+        <span>Emita e gerencie NFS-e para seus clientes</span>
+      </div>
+    </div>
+    <button mat-raised-button color="primary" routerLink="nova">
+      <mat-icon>add</mat-icon> Nova Nota Fiscal
+    </button>
+  </div>
+
+  <!-- Filtros -->
+  <mat-card class="filtros-card">
+    <div class="filtros-row">
+      <mat-form-field appearance="outline">
+        <mat-label>Status</mat-label>
+        <mat-select [(ngModel)]="statusFiltro" (ngModelChange)="aplicarFiltros()">
+          <mat-option value="">Todos</mat-option>
+          @for (s of statusList; track s) {
+            <mat-option [value]="s">{{ s }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="flex-2">
+        <mat-label>Cliente (Tomador)</mat-label>
+        <mat-select [(ngModel)]="clienteIdFiltro" (ngModelChange)="aplicarFiltros()">
+          <mat-option value="">Todos</mat-option>
+          @for (c of clientes; track c.id) {
+            <mat-option [value]="c.id">{{ c.nome }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+
+      <button mat-stroked-button (click)="statusFiltro=''; clienteIdFiltro=''; aplicarFiltros()">
+        <mat-icon>filter_alt_off</mat-icon> Limpar
+      </button>
+    </div>
+  </mat-card>
+
+  <!-- Tabela -->
+  <mat-card class="tabela-card">
+    <div class="tabela-wrapper">
+      <table mat-table [dataSource]="dataSource" matSort>
+
+        <ng-container matColumnDef="numero">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Número</th>
+          <td mat-cell *matCellDef="let nf">
+            <span class="numero">{{ nf.numero || 'S/N' }}</span>
+            <small>{{ nf.tipo }}</small>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="tipo">
+          <th mat-header-cell *matHeaderCellDef>Tipo</th>
+          <td mat-cell *matCellDef="let nf">
+            <span class="tipo-badge">{{ nf.tipo }}</span>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="tomador">
+          <th mat-header-cell *matHeaderCellDef>Tomador</th>
+          <td mat-cell *matCellDef="let nf">
+            <strong>{{ nf.tomadorNome }}</strong>
+            <small>{{ nf.tomadorCnpjCpf }}</small>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="emissao">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header="dataEmissao">Emissão</th>
+          <td mat-cell *matCellDef="let nf">{{ nf.dataEmissao | date:'dd/MM/yyyy':'':'pt-BR' }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="competencia">
+          <th mat-header-cell *matHeaderCellDef>Competência</th>
+          <td mat-cell *matCellDef="let nf">{{ nf.dataCompetencia | date:'MM/yyyy':'':'pt-BR' }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="valor">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header="valorBruto">Valor</th>
+          <td mat-cell *matCellDef="let nf">
+            <strong>{{ nf.valorBruto | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}</strong>
+            <small>Líq: {{ nf.impostos?.valorLiquido | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}</small>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="status">
+          <th mat-header-cell *matHeaderCellDef>Status</th>
+          <td mat-cell *matCellDef="let nf">
+            <span class="status-badge" [ngClass]="getStatusClass(nf.status)">{{ nf.status }}</span>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="acoes">
+          <th mat-header-cell *matHeaderCellDef>Ações</th>
+          <td mat-cell *matCellDef="let nf">
+            <button mat-icon-button [routerLink]="[nf.id]" matTooltip="Visualizar">
+              <mat-icon>visibility</mat-icon>
+            </button>
+            <button mat-icon-button (click)="gerarPdf(nf)" matTooltip="Gerar PDF">
+              <mat-icon>picture_as_pdf</mat-icon>
+            </button>
+            @if (nf.status === 'RASCUNHO') {
+              <button mat-icon-button color="primary" (click)="emitir(nf)" matTooltip="Emitir NF">
+                <mat-icon>send</mat-icon>
+              </button>
+            }
+            @if (nf.status === 'EMITIDA') {
+              <button mat-icon-button color="warn" (click)="cancelar(nf)" matTooltip="Cancelar">
+                <mat-icon>cancel</mat-icon>
+              </button>
+            }
+            @if (nf.status === 'RASCUNHO' || nf.status === 'CANCELADA') {
+              <button mat-icon-button color="warn" (click)="excluir(nf.id)" matTooltip="Excluir">
+                <mat-icon>delete</mat-icon>
+              </button>
+            }
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+        <tr class="mat-row no-data" *matNoDataRow>
+          <td [attr.colspan]="displayedColumns.length">
+            <mat-icon>description</mat-icon>
+            <span>Nenhuma nota fiscal encontrada</span>
+            <button mat-stroked-button routerLink="nova">Criar NF</button>
+          </td>
+        </tr>
+      </table>
+    </div>
+    <mat-paginator [pageSize]="15" [pageSizeOptions]="[10,15,25,50]" showFirstLastButtons></mat-paginator>
+  </mat-card>
+</div>

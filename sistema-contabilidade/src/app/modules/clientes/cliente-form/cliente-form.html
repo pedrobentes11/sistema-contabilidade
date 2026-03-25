@@ -1,0 +1,232 @@
+<div class="form-page">
+  <div class="page-header">
+    <button mat-icon-button (click)="router.navigate(['/clientes'])">
+      <mat-icon>arrow_back</mat-icon>
+    </button>
+    <h2>{{ modoEdicao ? 'Editar Cliente' : 'Novo Cliente' }}</h2>
+  </div>
+
+  @if (carregando) {
+    <div class="loading"><mat-spinner></mat-spinner></div>
+  } @else {
+    <form [formGroup]="form" (ngSubmit)="salvar()">
+      <mat-card class="form-card">
+        <mat-card-header><mat-card-title>Tipo de Cadastro</mat-card-title></mat-card-header>
+        <mat-card-content>
+          <mat-radio-group formControlName="tipoPessoa" class="tipo-radio">
+            <mat-radio-button value="JURIDICA">
+              <mat-icon>business</mat-icon> Pessoa Jurídica (CNPJ)
+            </mat-radio-button>
+            <mat-radio-button value="FISICA">
+              <mat-icon>person</mat-icon> Pessoa Física (CPF)
+            </mat-radio-button>
+          </mat-radio-group>
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Dados PJ -->
+      @if (isPJ) {
+        <mat-card class="form-card">
+          <mat-card-header><mat-card-title><mat-icon>business</mat-icon> Dados da Empresa</mat-card-title></mat-card-header>
+          <mat-card-content>
+            <div class="form-row">
+              <mat-form-field appearance="outline">
+                <mat-label>CNPJ *</mat-label>
+                <input matInput formControlName="cnpj" mask="00.000.000/0000-00">
+                <button mat-icon-button matSuffix type="button" (click)="buscarCNPJ()" matTooltip="Buscar dados na Receita Federal" [disabled]="buscandoCnpj">
+                  @if (buscandoCnpj) { <mat-spinner diameter="20"></mat-spinner> }
+                  @else { <mat-icon>search</mat-icon> }
+                </button>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="flex-2">
+                <mat-label>Razão Social *</mat-label>
+                <input matInput formControlName="razaoSocial">
+              </mat-form-field>
+            </div>
+
+            <div class="form-row">
+              <mat-form-field appearance="outline" class="flex-2">
+                <mat-label>Nome Fantasia</mat-label>
+                <input matInput formControlName="nomeFantasia">
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>Regime Tributário</mat-label>
+                <mat-select formControlName="regimeTributario">
+                  <mat-option value="MEI">MEI</mat-option>
+                  <mat-option value="SIMPLES_NACIONAL">Simples Nacional</mat-option>
+                  <mat-option value="LUCRO_PRESUMIDO">Lucro Presumido</mat-option>
+                  <mat-option value="LUCRO_REAL">Lucro Real</mat-option>
+                </mat-select>
+              </mat-form-field>
+            </div>
+
+            <div class="form-row">
+              <mat-form-field appearance="outline">
+                <mat-label>Inscrição Estadual</mat-label>
+                <input matInput formControlName="inscricaoEstadual">
+              </mat-form-field>
+              <mat-form-field appearance="outline">
+                <mat-label>Inscrição Municipal</mat-label>
+                <input matInput formControlName="inscricaoMunicipal">
+              </mat-form-field>
+              <mat-form-field appearance="outline">
+                <mat-label>Data de Abertura</mat-label>
+                <input matInput formControlName="dataAbertura" type="date">
+              </mat-form-field>
+              <mat-form-field appearance="outline">
+                <mat-label>CNAE Principal</mat-label>
+                <input matInput formControlName="cnae">
+              </mat-form-field>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      }
+
+      <!-- Dados PF -->
+      @if (!isPJ) {
+        <mat-card class="form-card">
+          <mat-card-header><mat-card-title><mat-icon>person</mat-icon> Dados Pessoais</mat-card-title></mat-card-header>
+          <mat-card-content>
+            <div class="form-row">
+              <mat-form-field appearance="outline" class="flex-2">
+                <mat-label>Nome Completo *</mat-label>
+                <input matInput formControlName="nomeCompleto">
+              </mat-form-field>
+              <mat-form-field appearance="outline">
+                <mat-label>CPF *</mat-label>
+                <input matInput formControlName="cpf" mask="000.000.000-00">
+              </mat-form-field>
+            </div>
+            <div class="form-row">
+              <mat-form-field appearance="outline">
+                <mat-label>RG</mat-label>
+                <input matInput formControlName="rg">
+              </mat-form-field>
+              <mat-form-field appearance="outline">
+                <mat-label>Data de Nascimento</mat-label>
+                <input matInput formControlName="dataNascimento" type="date">
+              </mat-form-field>
+              <mat-form-field appearance="outline">
+                <mat-label>Profissão</mat-label>
+                <input matInput formControlName="profissao">
+              </mat-form-field>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      }
+
+      <!-- Endereço -->
+      <mat-card class="form-card" formGroupName="endereco">
+        <mat-card-header><mat-card-title><mat-icon>location_on</mat-icon> Endereço</mat-card-title></mat-card-header>
+        <mat-card-content>
+          <div class="form-row">
+            <mat-form-field appearance="outline">
+              <mat-label>CEP *</mat-label>
+              <input matInput formControlName="cep" mask="00000-000" (blur)="buscarCEP()">
+            </mat-form-field>
+            <mat-form-field appearance="outline" class="flex-3">
+              <mat-label>Logradouro *</mat-label>
+              <input matInput formControlName="logradouro">
+            </mat-form-field>
+            <mat-form-field appearance="outline" style="max-width: 100px">
+              <mat-label>Número *</mat-label>
+              <input matInput formControlName="numero">
+            </mat-form-field>
+          </div>
+          <div class="form-row">
+            <mat-form-field appearance="outline">
+              <mat-label>Complemento</mat-label>
+              <input matInput formControlName="complemento">
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>Bairro *</mat-label>
+              <input matInput formControlName="bairro">
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>Cidade *</mat-label>
+              <input matInput formControlName="cidade">
+            </mat-form-field>
+            <mat-form-field appearance="outline" style="max-width: 100px">
+              <mat-label>Estado *</mat-label>
+              <input matInput formControlName="estado" maxlength="2">
+            </mat-form-field>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Contato -->
+      <mat-card class="form-card" formGroupName="contato">
+        <mat-card-header><mat-card-title><mat-icon>contacts</mat-icon> Contato</mat-card-title></mat-card-header>
+        <mat-card-content>
+          <div class="form-row">
+            <mat-form-field appearance="outline">
+              <mat-label>Telefone</mat-label>
+              <input matInput formControlName="telefone" mask="(00) 0000-0000">
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>Celular</mat-label>
+              <input matInput formControlName="celular" mask="(00) 00000-0000">
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>E-mail Principal *</mat-label>
+              <input matInput formControlName="email" type="email">
+              <mat-error>E-mail inválido</mat-error>
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>E-mail Secundário</mat-label>
+              <input matInput formControlName="emailSecundario" type="email">
+            </mat-form-field>
+          </div>
+          <div class="form-row">
+            <mat-form-field appearance="outline">
+              <mat-label>Site</mat-label>
+              <input matInput formControlName="site">
+            </mat-form-field>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Dados Contábeis -->
+      <mat-card class="form-card">
+        <mat-card-header><mat-card-title><mat-icon>account_balance_wallet</mat-icon> Dados Contábeis</mat-card-title></mat-card-header>
+        <mat-card-content>
+          <div class="form-row">
+            <mat-form-field appearance="outline">
+              <mat-label>Honorário Mensal (R$)</mat-label>
+              <input matInput formControlName="honorarioMensal" type="number" min="0">
+              <span matPrefix>R$&nbsp;</span>
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>Dia Vencimento Honorário</mat-label>
+              <input matInput formControlName="diaVencimentoHonorario" type="number" min="1" max="31">
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>Status</mat-label>
+              <mat-select formControlName="status">
+                <mat-option value="ATIVO">Ativo</mat-option>
+                <mat-option value="INATIVO">Inativo</mat-option>
+                <mat-option value="SUSPENSO">Suspenso</mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+          <mat-form-field appearance="outline" class="w-full">
+            <mat-label>Observações</mat-label>
+            <textarea matInput formControlName="observacoes" rows="3"></textarea>
+          </mat-form-field>
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Ações -->
+      <div class="form-actions">
+        <button mat-stroked-button type="button" (click)="router.navigate(['/clientes'])">Cancelar</button>
+        <button mat-raised-button color="primary" type="submit" [disabled]="salvando">
+          @if (salvando) { <mat-spinner diameter="20"></mat-spinner> }
+          @else { <mat-icon>save</mat-icon> }
+          {{ modoEdicao ? 'Salvar Alterações' : 'Cadastrar Cliente' }}
+        </button>
+      </div>
+    </form>
+  }
+</div>

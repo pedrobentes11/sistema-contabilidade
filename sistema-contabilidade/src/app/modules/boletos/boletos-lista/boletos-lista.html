@@ -1,0 +1,134 @@
+<div class="boletos-page">
+  <div class="page-header">
+    <div class="header-title">
+      <mat-icon>receipt</mat-icon>
+      <div>
+        <h1>Boletos</h1>
+        <span>Gerencie e emita boletos para seus clientes</span>
+      </div>
+    </div>
+    <button mat-raised-button color="primary" routerLink="novo">
+      <mat-icon>add</mat-icon> Novo Boleto
+    </button>
+  </div>
+
+  <!-- Filtros -->
+  <mat-card class="filtros-card">
+    <div class="filtros-row">
+      <mat-form-field appearance="outline">
+        <mat-label>Status</mat-label>
+        <mat-select [(ngModel)]="statusFiltro" (ngModelChange)="aplicarFiltros()">
+          <mat-option value="">Todos</mat-option>
+          @for (s of statusList; track s) {
+            <mat-option [value]="s">{{ s }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="flex-2">
+        <mat-label>Cliente</mat-label>
+        <mat-select [(ngModel)]="clienteIdFiltro" (ngModelChange)="aplicarFiltros()">
+          <mat-option value="">Todos</mat-option>
+          @for (c of clientes; track c.id) {
+            <mat-option [value]="c.id">{{ c.nome }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+
+      <button mat-stroked-button (click)="clienteIdFiltro=''; statusFiltro=''; aplicarFiltros()">
+        <mat-icon>filter_alt_off</mat-icon> Limpar
+      </button>
+    </div>
+  </mat-card>
+
+  <!-- Tabela -->
+  <mat-card class="tabela-card">
+    <div class="tabela-wrapper">
+      <table mat-table [dataSource]="dataSource" matSort>
+
+        <ng-container matColumnDef="numero">
+          <th mat-header-cell *matHeaderCellDef>Nº / Nosso Nº</th>
+          <td mat-cell *matCellDef="let b">
+            <div class="numero-cell">
+              <span>{{ b.numeroDocumento }}</span>
+              <small>{{ b.nossoNumero }}</small>
+            </div>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="cliente">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header="clienteNome">Cliente</th>
+          <td mat-cell *matCellDef="let b">{{ b.clienteNome }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="descricao">
+          <th mat-header-cell *matHeaderCellDef>Descrição</th>
+          <td mat-cell *matCellDef="let b">{{ b.descricao }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="emissao">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header="dataEmissao">Emissão</th>
+          <td mat-cell *matCellDef="let b">{{ b.dataEmissao | date:'dd/MM/yyyy':'':'pt-BR' }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="vencimento">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header="dataVencimento">Vencimento</th>
+          <td mat-cell *matCellDef="let b">
+            <span [class.vencido-text]="isVencido(b)">
+              {{ b.dataVencimento | date:'dd/MM/yyyy':'':'pt-BR' }}
+              @if (isVencido(b)) { <mat-icon class="warn-icon">warning</mat-icon> }
+            </span>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="valor">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header="valor">Valor</th>
+          <td mat-cell *matCellDef="let b">
+            <strong>{{ b.valor | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}</strong>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="status">
+          <th mat-header-cell *matHeaderCellDef>Status</th>
+          <td mat-cell *matCellDef="let b">
+            <span class="status-badge" [ngClass]="getStatusClass(b.status)">{{ b.status }}</span>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="acoes">
+          <th mat-header-cell *matHeaderCellDef>Ações</th>
+          <td mat-cell *matCellDef="let b">
+            <button mat-icon-button [routerLink]="[b.id]" matTooltip="Visualizar">
+              <mat-icon>visibility</mat-icon>
+            </button>
+            <button mat-icon-button (click)="gerarPdf(b)" matTooltip="Baixar PDF">
+              <mat-icon>picture_as_pdf</mat-icon>
+            </button>
+            @if (b.status === 'EMITIDO') {
+              <button mat-icon-button color="primary" (click)="marcarComoPago(b.id)" matTooltip="Marcar como pago">
+                <mat-icon>check_circle</mat-icon>
+              </button>
+              <button mat-icon-button color="warn" (click)="cancelar(b.id)" matTooltip="Cancelar">
+                <mat-icon>cancel</mat-icon>
+              </button>
+            }
+            <button mat-icon-button color="warn" (click)="excluir(b.id)" matTooltip="Excluir">
+              <mat-icon>delete</mat-icon>
+            </button>
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+        <tr class="mat-row no-data" *matNoDataRow>
+          <td [attr.colspan]="displayedColumns.length">
+            <mat-icon>receipt_long</mat-icon>
+            <span>Nenhum boleto encontrado</span>
+            <button mat-stroked-button routerLink="novo">Emitir boleto</button>
+          </td>
+        </tr>
+      </table>
+    </div>
+    <mat-paginator [pageSize]="15" [pageSizeOptions]="[10,15,25,50]" showFirstLastButtons></mat-paginator>
+  </mat-card>
+</div>

@@ -1,0 +1,130 @@
+.login-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #0d47a1 0%, #1565c0 40%, #1976d2 100%);
+  position: relative;
+  overflow: hidden;
+  padding: 16px;
+}
+
+/* Círculos decorativos de fundo */
+.login-bg {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.circle {
+  position: absolute;
+  border-radius: 50%;
+  opacity: .12;
+  background: #fff;
+}
+.c1 { width: 420px; height: 420px; top: -120px; right: -100px; }
+.c2 { width: 280px; height: 280px; bottom: -80px; left: -60px; }
+.c3 { width: 180px; height: 180px; top: 60%; left: 55%; }
+
+/* Card central */
+.login-card {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 420px;
+  background: #fff;
+  border-radius: 20px;
+  padding: 40px 36px 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+/* Cabeçalho */
+.login-header {
+  text-align: center;
+  margin-bottom: 28px;
+
+  .logo-icon {
+    width: 72px;
+    height: 72px;
+    border-radius: 18px;
+    background: linear-gradient(135deg, #1565c0, #42a5f5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 16px;
+    box-shadow: 0 8px 24px rgba(21, 101, 192, .35);
+
+    mat-icon {
+      font-size: 36px;
+      width: 36px;
+      height: 36px;
+      color: #fff;
+    }
+  }
+
+  h1 {
+    margin: 0 0 4px;
+    font-size: 26px;
+    font-weight: 700;
+    color: #0d47a1;
+    letter-spacing: -.5px;
+  }
+
+  .subtitulo {
+    margin: 0;
+    font-size: 13px;
+    color: #78909c;
+  }
+}
+
+/* Campos */
+.campo-full {
+  width: 100%;
+  margin-bottom: 8px;
+}
+
+/* Erro de credenciais */
+.erro-credenciais {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #fce4ec;
+  color: #c62828;
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 13px;
+  margin-bottom: 12px;
+
+  mat-icon { font-size: 18px; width: 18px; height: 18px; }
+}
+
+/* Botão entrar */
+.btn-entrar {
+  width: 100%;
+  height: 48px;
+  font-size: 15px;
+  font-weight: 600;
+  border-radius: 10px !important;
+  letter-spacing: .3px;
+  margin-top: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+
+  mat-spinner { display: inline-flex; }
+}
+
+/* Rodapé */
+.rodape {
+  text-align: center;
+  font-size: 11px;
+  color: #b0bec5;
+  margin: 20px 0 0;
+}
+
+@media (max-width: 480px) {
+  .login-card { padding: 32px 20px 24px; }
+}

@@ -1,0 +1,148 @@
+<div class="visualizar-page">
+  @if (loading) {
+    <div class="loading"><mat-spinner></mat-spinner></div>
+  } @else if (!boleto) {
+    <div class="not-found">
+      <mat-icon>search_off</mat-icon>
+      <h2>Boleto não encontrado</h2>
+      <button mat-raised-button (click)="voltar()">Voltar</button>
+    </div>
+  } @else {
+    <!-- Cabeçalho -->
+    <div class="page-header">
+      <button mat-icon-button (click)="voltar()"><mat-icon>arrow_back</mat-icon></button>
+      <div class="header-info">
+        <h1>Boleto Nº {{ boleto.nossoNumero }}</h1>
+        <span class="status-badge" [ngClass]="getStatusClass(boleto.status)">{{ boleto.status }}</span>
+      </div>
+      <div class="header-actions">
+        <button mat-stroked-button (click)="gerarPdf()" [disabled]="gerandoPdf">
+          @if (gerandoPdf) { <mat-spinner diameter="18"></mat-spinner> }
+          @else { <mat-icon>picture_as_pdf</mat-icon> }
+          Baixar PDF
+        </button>
+        @if (boleto.status === 'EMITIDO') {
+          <button mat-raised-button color="primary" (click)="marcarComoPago()">
+            <mat-icon>check_circle</mat-icon> Marcar como Pago
+          </button>
+        }
+      </div>
+    </div>
+
+    <!-- Preview do Boleto -->
+    <mat-card class="boleto-preview">
+      <!-- Cabeçalho estilo banco -->
+      <div class="boleto-header">
+        <div class="banco">
+          <mat-icon>account_balance</mat-icon>
+          <span>Banco do Brasil S.A.</span>
+        </div>
+        <div class="codigo-banco">001-9</div>
+        <div class="linha-digitavel">{{ linhaDigitavel }}</div>
+      </div>
+      <mat-divider></mat-divider>
+
+      <!-- Corpo -->
+      <div class="boleto-body">
+        <!-- Dados do sacado -->
+        <div class="bloco-info">
+          <div class="info-row">
+            <div class="info-campo flex-3">
+              <label>BENEFICIÁRIO (CEDENTE)</label>
+              <span>{{ boleto.cedenteName }}</span>
+            </div>
+            <div class="info-campo">
+              <label>AGÊNCIA/CÓDIGO DO CEDENTE</label>
+              <span>{{ boleto.cedenteAgencia || '—' }}/{{ boleto.cedenteConta || '—' }}</span>
+            </div>
+            <div class="info-campo">
+              <label>NOSSO NÚMERO</label>
+              <span class="mono">{{ boleto.nossoNumero }}</span>
+            </div>
+          </div>
+          <div class="info-row">
+            <div class="info-campo flex-3">
+              <label>PAGADOR (SACADO)</label>
+              <span><strong>{{ boleto.sacadoNome }}</strong></span>
+              <small>{{ boleto.sacadoCnpjCpf }}</small>
+              <small>{{ boleto.sacadoEndereco }}</small>
+            </div>
+            <div class="info-campo">
+              <label>DATA DE EMISSÃO</label>
+              <span>{{ boleto.dataEmissao | date:'dd/MM/yyyy':'':'pt-BR' }}</span>
+            </div>
+            <div class="info-campo">
+              <label>DATA DE VENCIMENTO</label>
+              <span class="destaque">{{ boleto.dataVencimento | date:'dd/MM/yyyy':'':'pt-BR' }}</span>
+            </div>
+          </div>
+          <div class="info-row">
+            <div class="info-campo flex-3">
+              <label>DESCRIÇÃO</label>
+              <span>{{ boleto.descricao }}</span>
+              @if (boleto.numeroDocumento) { <small>Nº Documento: {{ boleto.numeroDocumento }}</small> }
+            </div>
+            <div class="info-campo">
+              <label>MULTA</label>
+              <span>{{ boleto.valorMulta || 0 }}%</span>
+            </div>
+            <div class="info-campo">
+              <label>JUROS AO MÊS</label>
+              <span>{{ boleto.valorJuros || 0 }}%</span>
+            </div>
+            <div class="info-campo valor-destaque">
+              <label>VALOR DO DOCUMENTO</label>
+              <span>{{ boleto.valor | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}</span>
+            </div>
+          </div>
+
+          @if (boleto.instrucoes && boleto.instrucoes.length) {
+            <div class="instrucoes">
+              <label>INSTRUÇÕES AO CAIXA</label>
+              @for (inst of boleto.instrucoes; track $index) {
+                <p>• {{ inst }}</p>
+              }
+            </div>
+          }
+        </div>
+
+        <!-- Código de barras simulado -->
+        <div class="barcode-section">
+          <div class="barcode">
+            @for (b of [].constructor(80); track $index) {
+              <div class="bar" [style.height.px]="$index % 5 === 0 ? 80 : 60"
+                [style.width.px]="$index % 3 === 0 ? 3 : 1"></div>
+            }
+          </div>
+        </div>
+
+        @if (boleto.dataPagamento) {
+          <div class="pago-stamp">
+            <mat-icon>check_circle</mat-icon>
+            PAGO em {{ boleto.dataPagamento | date:'dd/MM/yyyy':'':'pt-BR' }}
+          </div>
+        }
+      </div>
+    </mat-card>
+
+    <!-- Envio por e-mail -->
+    <mat-card class="email-card">
+      <mat-card-header><mat-card-title>Enviar por E-mail</mat-card-title></mat-card-header>
+      <mat-card-content>
+        <div class="email-row">
+          <mat-form-field appearance="outline" class="flex-3">
+            <mat-label>E-mail do destinatário</mat-label>
+            <input matInput [(ngModel)]="emailCliente" type="email" placeholder="cliente@empresa.com">
+            <mat-icon matPrefix>email</mat-icon>
+          </mat-form-field>
+          <button mat-raised-button color="primary" (click)="enviarEmail()"
+            [disabled]="enviandoEmail || !emailCliente">
+            @if (enviandoEmail) { <mat-spinner diameter="18"></mat-spinner> }
+            @else { <mat-icon>send</mat-icon> }
+            Enviar
+          </button>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  }
+</div>

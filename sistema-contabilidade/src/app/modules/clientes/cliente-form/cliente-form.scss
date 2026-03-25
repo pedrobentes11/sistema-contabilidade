@@ -1,0 +1,75 @@
+.form-page {
+  max-width: 1000px;
+  margin: 0 auto;
+
+  .page-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+    h2 { margin: 0; font-size: 22px; font-weight: 700; color: #1a237e; }
+  }
+
+  .loading {
+    display: flex;
+    justify-content: center;
+    padding: 64px;
+  }
+
+  .form-card {
+    border-radius: 14px !important;
+    margin-bottom: 20px;
+
+    mat-card-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 16px;
+      color: #1a237e;
+      mat-icon { color: #1976d2; }
+    }
+  }
+
+  .tipo-radio {
+    display: flex;
+    gap: 24px;
+    mat-radio-button {
+      display: flex;
+      align-items: center;
+      mat-icon { margin-right: 4px; vertical-align: middle; }
+    }
+  }
+
+  .form-row {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin-bottom: 4px;
+
+    mat-form-field {
+      flex: 1;
+      min-width: 160px;
+    }
+
+    .flex-2 { flex: 2; }
+    .flex-3 { flex: 3; }
+  }
+
+  .w-full { width: 100%; }
+
+  .form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 8px;
+    padding-bottom: 24px;
+
+    button {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 24px;
+      border-radius: 10px;
+    }
+  }
+}

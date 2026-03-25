@@ -1,0 +1,22 @@
+<mat-toolbar class="app-header">
+  <div class="header-left">
+    <span class="page-title">{{ paginaAtual }}</span>
+  </div>
+  <span class="spacer"></span>
+  <div class="header-right">
+    <span class="date-display">
+      <mat-icon>today</mat-icon>
+      {{ dataHoje | date:'EEEE, dd \'de\' MMMM \'de\' yyyy':'':'pt' }}
+    </span>
+    <button mat-icon-button matTooltip="Notificações">
+      <mat-icon [matBadge]="3" matBadgeColor="warn">notifications</mat-icon>
+    </button>
+    <div class="user-chip" *ngIf="auth.usuarioAtual">
+      <mat-icon>manage_accounts</mat-icon>
+      <span class="user-nome">{{ auth.usuarioAtual.nome }}</span>
+    </div>
+    <button mat-icon-button matTooltip="Sair" (click)="sair()" class="btn-sair">
+      <mat-icon>logout</mat-icon>
+    </button>
+  </div>
+</mat-toolbar>

@@ -1,0 +1,182 @@
+@if (carregando) {
+  <div class="loading-container">
+    <mat-spinner></mat-spinner>
+    <p>Carregando dados...</p>
+  </div>
+} @else {
+  <div class="dashboard-page">
+
+    <!-- KPI Cards -->
+    <div class="kpi-grid">
+      <mat-card class="kpi-card clientes">
+        <mat-card-content>
+          <div class="kpi-icon"><mat-icon>people</mat-icon></div>
+          <div class="kpi-info">
+            <span class="kpi-value">{{ resumo.totalClientes }}</span>
+            <span class="kpi-label">Total de Clientes</span>
+            <span class="kpi-sub">{{ resumo.clientesAtivos }} ativos</span>
+          </div>
+        </mat-card-content>
+        <div class="kpi-action">
+          <button mat-button routerLink="/clientes">Ver todos →</button>
+        </div>
+      </mat-card>
+
+      <mat-card class="kpi-card receita">
+        <mat-card-content>
+          <div class="kpi-icon"><mat-icon>trending_up</mat-icon></div>
+          <div class="kpi-info">
+            <span class="kpi-value">{{ formatCurrency(resumo.receitaMesAtual) }}</span>
+            <span class="kpi-label">Receitas do Mês</span>
+            <span class="kpi-sub">{{ formatCurrency(resumo.honorariosPendentes) }} pendentes</span>
+          </div>
+        </mat-card-content>
+        <div class="kpi-action">
+          <button mat-button routerLink="/financeiro/lancamentos">Ver lançamentos →</button>
+        </div>
+      </mat-card>
+
+      <mat-card class="kpi-card despesa">
+        <mat-card-content>
+          <div class="kpi-icon"><mat-icon>trending_down</mat-icon></div>
+          <div class="kpi-info">
+            <span class="kpi-value">{{ formatCurrency(resumo.despesaMesAtual) }}</span>
+            <span class="kpi-label">Despesas do Mês</span>
+            <span class="kpi-sub">{{ resumo.boletosVencidos }} boletos vencidos</span>
+          </div>
+        </mat-card-content>
+        <div class="kpi-action">
+          <button mat-button routerLink="/boletos">Ver boletos →</button>
+        </div>
+      </mat-card>
+
+      <mat-card class="kpi-card saldo" [class.positivo]="resumo.saldoMesAtual >= 0" [class.negativo]="resumo.saldoMesAtual < 0">
+        <mat-card-content>
+          <div class="kpi-icon">
+            <mat-icon>{{ resumo.saldoMesAtual >= 0 ? 'account_balance' : 'warning' }}</mat-icon>
+          </div>
+          <div class="kpi-info">
+            <span class="kpi-value">{{ formatCurrency(resumo.saldoMesAtual) }}</span>
+            <span class="kpi-label">Saldo do Mês</span>
+            <span class="kpi-sub">{{ resumo.nfEmitidasMes }} NFs emitidas no mês</span>
+          </div>
+        </mat-card-content>
+        <div class="kpi-action">
+          <button mat-button routerLink="/relatorios">Ver relatório →</button>
+        </div>
+      </mat-card>
+    </div>
+
+    <!-- Ações Rápidas -->
+    <mat-card class="acoes-rapidas-card">
+      <mat-card-header>
+        <mat-card-title>
+          <mat-icon>flash_on</mat-icon>
+          Ações Rápidas
+        </mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="acoes-grid">
+          <button mat-raised-button color="primary" routerLink="/clientes/novo">
+            <mat-icon>person_add</mat-icon>
+            Novo Cliente
+          </button>
+          <button mat-raised-button color="accent" routerLink="/financeiro/lancamentos/novo">
+            <mat-icon>add_circle</mat-icon>
+            Novo Lançamento
+          </button>
+          <button mat-raised-button routerLink="/boletos/novo">
+            <mat-icon>payments</mat-icon>
+            Emitir Boleto
+          </button>
+          <button mat-raised-button routerLink="/notas-fiscais">
+            <mat-icon>receipt</mat-icon>
+            Nova Nota Fiscal
+          </button>
+          <button mat-raised-button routerLink="/financeiro/extrato">
+            <mat-icon>summarize</mat-icon>
+            Gerar Extrato
+          </button>
+          <button mat-raised-button routerLink="/relatorios">
+            <mat-icon>bar_chart</mat-icon>
+            Relatórios
+          </button>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Próximos Vencimentos -->
+    <div class="bottom-row">
+      <mat-card class="vencimentos-card">
+        <mat-card-header>
+          <mat-card-title>
+            <mat-icon>event</mat-icon>
+            Próximos Vencimentos
+          </mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          @if (resumo.proximosVencimentos.length === 0) {
+            <div class="empty-state">
+              <mat-icon>check_circle</mat-icon>
+              <p>Nenhum vencimento próximo</p>
+            </div>
+          } @else {
+            <div class="vencimentos-lista">
+              @for (v of resumo.proximosVencimentos; track v.id) {
+                <div class="vencimento-item" [class]="getStatusVencClass(v.diasRestantes)">
+                  <div class="venc-info">
+                    <span class="venc-cliente">{{ v.clienteNome }}</span>
+                    <span class="venc-desc">{{ v.descricao }}</span>
+                  </div>
+                  <div class="venc-data">
+                    <span class="venc-valor">{{ formatCurrency(v.valor) }}</span>
+                    <span class="venc-dias">
+                      @if (v.diasRestantes < 0) {
+                        Vencido há {{ -v.diasRestantes }}d
+                      } @else if (v.diasRestantes === 0) {
+                        Vence hoje!
+                      } @else {
+                        Em {{ v.diasRestantes }} dia(s)
+                      }
+                    </span>
+                  </div>
+                </div>
+              }
+            </div>
+          }
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Mini Gráfico Mensal (tabela simplificada) -->
+      <mat-card class="grafico-card">
+        <mat-card-header>
+          <mat-card-title>
+            <mat-icon>bar_chart</mat-icon>
+            Últimos 6 Meses
+          </mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="grafico-simples">
+            <div class="grafico-header">
+              <span>Mês</span>
+              <span>Receitas</span>
+              <span>Despesas</span>
+              <span>Saldo</span>
+            </div>
+            @for (item of resumo.graficoMensalReceitas; track item.name; let i = $index) {
+              <div class="grafico-row">
+                <span class="mes-label">{{ item.name }}</span>
+                <span class="valor-receita">{{ formatCurrency(item.value) }}</span>
+                <span class="valor-despesa">{{ formatCurrency(resumo.graficoMensalDespesas[i]?.value || 0) }}</span>
+                <span [class]="(item.value - (resumo.graficoMensalDespesas[i]?.value || 0)) >= 0 ? 'valor-saldo-pos' : 'valor-saldo-neg'">
+                  {{ formatCurrency(item.value - (resumo.graficoMensalDespesas[i]?.value || 0)) }}
+                </span>
+              </div>
+            }
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+
+  </div>
+}

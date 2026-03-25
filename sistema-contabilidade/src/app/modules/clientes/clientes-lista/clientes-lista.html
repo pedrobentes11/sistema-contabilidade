@@ -1,0 +1,136 @@
+<div class="clientes-page">
+  <div class="page-header">
+    <div class="page-title-area">
+      <h2>Clientes</h2>
+      <span class="total-badge">{{ dataSource.filteredData.length }} registros</span>
+    </div>
+    <button mat-raised-button color="primary" routerLink="/clientes/novo">
+      <mat-icon>person_add</mat-icon>
+      Novo Cliente
+    </button>
+  </div>
+
+  <!-- Filtros -->
+  <mat-card class="filter-card">
+    <mat-card-content>
+      <div class="filters-row">
+        <mat-form-field appearance="outline" class="search-field">
+          <mat-label>Buscar cliente</mat-label>
+          <input matInput [(ngModel)]="termoBusca" (input)="applyFilter()"
+                 placeholder="Nome, CNPJ/CPF, e-mail...">
+          <mat-icon matSuffix>search</mat-icon>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Status</mat-label>
+          <mat-select [(ngModel)]="filtroStatus" (selectionChange)="applyFilter()">
+            <mat-option value="">Todos</mat-option>
+            <mat-option value="ATIVO">Ativo</mat-option>
+            <mat-option value="INATIVO">Inativo</mat-option>
+            <mat-option value="SUSPENSO">Suspenso</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        @if (termoBusca || filtroStatus) {
+          <button mat-stroked-button (click)="clearFilter()">
+            <mat-icon>clear</mat-icon> Limpar
+          </button>
+        }
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Tabela -->
+  <mat-card class="table-card">
+    @if (carregando) {
+      <div class="loading"><mat-spinner diameter="40"></mat-spinner></div>
+    } @else {
+      <mat-table [dataSource]="dataSource" matSort>
+        <ng-container matColumnDef="nomeRazao">
+          <mat-header-cell *matHeaderCellDef mat-sort-header>Nome / Razão Social</mat-header-cell>
+          <mat-cell *matCellDef="let c">
+            <div class="cliente-nome-cell">
+              <div class="avatar" [class]="c.tipoPessoa === 'JURIDICA' ? 'pj' : 'pf'">
+                <mat-icon>{{ c.tipoPessoa === 'JURIDICA' ? 'business' : 'person' }}</mat-icon>
+              </div>
+              <div>
+                <strong>{{ getNome(c) }}</strong>
+                @if (c.nomeFantasia) {
+                  <small>{{ c.nomeFantasia }}</small>
+                }
+              </div>
+            </div>
+          </mat-cell>
+        </ng-container>
+
+        <ng-container matColumnDef="cnpjCpf">
+          <mat-header-cell *matHeaderCellDef mat-sort-header>CNPJ / CPF</mat-header-cell>
+          <mat-cell *matCellDef="let c">{{ getCnpjCpf(c) }}</mat-cell>
+        </ng-container>
+
+        <ng-container matColumnDef="email">
+          <mat-header-cell *matHeaderCellDef>E-mail</mat-header-cell>
+          <mat-cell *matCellDef="let c">{{ c.contato.email }}</mat-cell>
+        </ng-container>
+
+        <ng-container matColumnDef="regimeTributario">
+          <mat-header-cell *matHeaderCellDef>Regime</mat-header-cell>
+          <mat-cell *matCellDef="let c">
+            @if (c.regimeTributario) {
+              <mat-chip>{{ c.regimeTributario.replace('_', ' ') }}</mat-chip>
+            }
+          </mat-cell>
+        </ng-container>
+
+        <ng-container matColumnDef="honorario">
+          <mat-header-cell *matHeaderCellDef>Honorário</mat-header-cell>
+          <mat-cell *matCellDef="let c">
+            @if (c.honorarioMensal) {
+              {{ c.honorarioMensal | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}
+            } @else {
+              <span class="na">—</span>
+            }
+          </mat-cell>
+        </ng-container>
+
+        <ng-container matColumnDef="status">
+          <mat-header-cell *matHeaderCellDef>Status</mat-header-cell>
+          <mat-cell *matCellDef="let c">
+            <span class="status-badge" [class]="getStatusClass(c.status)">{{ c.status }}</span>
+          </mat-cell>
+        </ng-container>
+
+        <ng-container matColumnDef="acoes">
+          <mat-header-cell *matHeaderCellDef>Ações</mat-header-cell>
+          <mat-cell *matCellDef="let c">
+            <button mat-icon-button matTooltip="Ver detalhes" [routerLink]="['/clientes', c.id]">
+              <mat-icon>visibility</mat-icon>
+            </button>
+            <button mat-icon-button matTooltip="Editar" [routerLink]="['/clientes', c.id, 'editar']">
+              <mat-icon>edit</mat-icon>
+            </button>
+            <button mat-icon-button matTooltip="Lançamentos" [routerLink]="['/financeiro/lancamentos']" [queryParams]="{clienteId: c.id}">
+              <mat-icon>receipt_long</mat-icon>
+            </button>
+            <button mat-icon-button matTooltip="Excluir" color="warn" (click)="excluir(c)">
+              <mat-icon>delete</mat-icon>
+            </button>
+          </mat-cell>
+        </ng-container>
+
+        <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+        <mat-row *matRowDef="let row; columns: displayedColumns;" class="clickable-row"
+                 (click)="router.navigate(['/clientes', row.id])"></mat-row>
+
+        <tr class="mat-row" *matNoDataRow>
+          <td class="mat-cell no-data" [attr.colspan]="displayedColumns.length">
+            <mat-icon>search_off</mat-icon>
+            <p>Nenhum cliente encontrado</p>
+          </td>
+        </tr>
+      </mat-table>
+
+      <mat-paginator [pageSizeOptions]="[10, 25, 50]" showFirstLastButtons></mat-paginator>
+    }
+  </mat-card>
+</div>

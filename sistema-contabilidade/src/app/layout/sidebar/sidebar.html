@@ -1,0 +1,44 @@
+<div class="sidebar">
+  <div class="sidebar-header">
+    <div class="logo-container">
+      <mat-icon class="logo-icon">account_balance</mat-icon>
+      <div class="logo-text">
+        <span class="logo-title">ContaFácil</span>
+        <span class="logo-subtitle">Sistema Contábil</span>
+      </div>
+    </div>
+  </div>
+
+  <nav class="sidebar-nav">
+    <ul>
+      @for (item of navItems; track item.label) {
+        <li class="nav-item" [class.active]="isActive(item.route)" [class.has-children]="item.children">
+          <div class="nav-link" (click)="toggleItem(item)">
+            <mat-icon>{{ item.icon }}</mat-icon>
+            <span>{{ item.label }}</span>
+            @if (item.children) {
+              <mat-icon class="expand-icon">{{ item.expanded ? 'expand_less' : 'expand_more' }}</mat-icon>
+            }
+          </div>
+          @if (item.children && item.expanded) {
+            <ul class="sub-menu">
+              @for (child of item.children; track child.label) {
+                <li class="nav-item sub-item" [class.active]="isActive(child.route)">
+                  <div class="nav-link" (click)="toggleItem(child)">
+                    <mat-icon>{{ child.icon }}</mat-icon>
+                    <span>{{ child.label }}</span>
+                  </div>
+                </li>
+              }
+            </ul>
+          }
+        </li>
+      }
+    </ul>
+  </nav>
+
+  <div class="sidebar-footer">
+    <mat-icon>info_outline</mat-icon>
+    <span>v1.0.0 &copy; 2026</span>
+  </div>
+</div>

@@ -1,0 +1,190 @@
+<div class="relatorio-page">
+  <div class="page-header">
+    <div class="header-title">
+      <mat-icon>bar_chart</mat-icon>
+      <div>
+        <h1>Relatório Geral</h1>
+        <span>Visão consolidada das finanças do escritório</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filtros -->
+  <mat-card class="filtros-card" [formGroup]="filtroForm">
+    <div class="filtros-row">
+      <mat-form-field appearance="outline">
+        <mat-label>Cliente</mat-label>
+        <mat-select formControlName="clienteId">
+          <mat-option value="">Todos</mat-option>
+          @for (c of clientes; track c.id) {
+            <mat-option [value]="c.id">{{ c.nome }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>Data Início</mat-label>
+        <input matInput type="date" formControlName="dataInicio">
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>Data Fim</mat-label>
+        <input matInput type="date" formControlName="dataFim">
+      </mat-form-field>
+      <button mat-raised-button color="primary" (click)="calcularRelatorio()">
+        <mat-icon>refresh</mat-icon> Atualizar
+      </button>
+    </div>
+  </mat-card>
+
+  <!-- KPIs -->
+  <div class="kpi-grid">
+    <mat-card class="kpi receita">
+      <mat-icon>trending_up</mat-icon>
+      <div>
+        <span class="valor">{{ totalReceitas | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}</span>
+        <span class="label">Total Receitas</span>
+      </div>
+    </mat-card>
+    <mat-card class="kpi despesa">
+      <mat-icon>trending_down</mat-icon>
+      <div>
+        <span class="valor">{{ totalDespesas | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}</span>
+        <span class="label">Total Despesas</span>
+      </div>
+    </mat-card>
+    <mat-card class="kpi saldo" [class.negativo]="saldo < 0">
+      <mat-icon>account_balance</mat-icon>
+      <div>
+        <span class="valor">{{ saldo | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}</span>
+        <span class="label">Saldo</span>
+      </div>
+    </mat-card>
+    <mat-card class="kpi clientes">
+      <mat-icon>people</mat-icon>
+      <div>
+        <span class="valor">{{ totalClientes }}</span>
+        <span class="label">Clientes Cadastrados</span>
+      </div>
+    </mat-card>
+    <mat-card class="kpi boletos">
+      <mat-icon>receipt</mat-icon>
+      <div>
+        <span class="valor">{{ totalBoletos }}</span>
+        <span class="label">Boletos Emitidos</span>
+      </div>
+    </mat-card>
+    <mat-card class="kpi nfs">
+      <mat-icon>description</mat-icon>
+      <div>
+        <span class="valor">{{ totalNFs }}</span>
+        <span class="label">Notas Fiscais</span>
+      </div>
+    </mat-card>
+  </div>
+
+  <!-- Gráfico de barras por mês -->
+  <mat-card class="grafico-card">
+    <mat-card-header>
+      <mat-card-title>Últimos 6 Meses — Receitas vs Despesas</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <div class="grafico-barras">
+        @for (mes of resumoPorMes; track mes.mes) {
+          <div class="mes-col">
+            <div class="barras">
+              <div class="bar-wrap">
+                <div class="bar receita" [style.height]="getBarWidth(mes.receitas)"
+                  [matTooltip]="'Receitas: ' + (mes.receitas | currency:'BRL':'symbol':'1.2-2':'pt-BR')"></div>
+              </div>
+              <div class="bar-wrap">
+                <div class="bar despesa" [style.height]="getBarWidth(mes.despesas)"
+                  [matTooltip]="'Despesas: ' + (mes.despesas | currency:'BRL':'symbol':'1.2-2':'pt-BR')"></div>
+              </div>
+            </div>
+            <span class="mes-label">{{ mes.mes }}</span>
+            <span class="saldo-label" [class.pos]="mes.saldo >= 0" [class.neg]="mes.saldo < 0">
+              {{ mes.saldo | currency:'BRL':'symbol':'1.0-0':'pt-BR' }}
+            </span>
+          </div>
+        }
+      </div>
+      <div class="legenda">
+        <div class="leg-item"><span class="dot receita"></span>Receitas</div>
+        <div class="leg-item"><span class="dot despesa"></span>Despesas</div>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Categorias -->
+  <div class="categorias-grid">
+    <mat-card class="cat-card">
+      <mat-card-header><mat-card-title>Receitas por Categoria</mat-card-title></mat-card-header>
+      <mat-card-content>
+        @if (receitasPorCategoria.length === 0) {
+          <p class="empty-cat">Sem dados para o período</p>
+        } @else {
+          @for (cat of receitasPorCategoria; track cat.categoria) {
+            <div class="cat-item">
+              <div class="cat-info">
+                <span class="cat-nome">{{ cat.categoria }}</span>
+                <span class="cat-valor receita">{{ cat.total | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}</span>
+              </div>
+              <div class="cat-bar-bg">
+                <div class="cat-bar receita" [style.width]="(cat.total / totalReceitas * 100) + '%'"></div>
+              </div>
+            </div>
+          }
+        }
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="cat-card">
+      <mat-card-header><mat-card-title>Despesas por Categoria</mat-card-title></mat-card-header>
+      <mat-card-content>
+        @if (despesasPorCategoria.length === 0) {
+          <p class="empty-cat">Sem dados para o período</p>
+        } @else {
+          @for (cat of despesasPorCategoria; track cat.categoria) {
+            <div class="cat-item">
+              <div class="cat-info">
+                <span class="cat-nome">{{ cat.categoria }}</span>
+                <span class="cat-valor despesa">{{ cat.total | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}</span>
+              </div>
+              <div class="cat-bar-bg">
+                <div class="cat-bar despesa" [style.width]="(cat.total / totalDespesas * 100) + '%'"></div>
+              </div>
+            </div>
+          }
+        }
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+  <!-- Tabela comparativa -->
+  <mat-card class="tabela-meses">
+    <mat-card-header><mat-card-title>Comparativo Mensal</mat-card-title></mat-card-header>
+    <mat-card-content>
+      <table class="comp-table">
+        <thead>
+          <tr>
+            <th>Mês</th>
+            <th>Receitas</th>
+            <th>Despesas</th>
+            <th>Saldo</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (m of resumoPorMes; track m.mes) {
+            <tr>
+              <td>{{ m.mes }}</td>
+              <td class="val receita">{{ m.receitas | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}</td>
+              <td class="val despesa">{{ m.despesas | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}</td>
+              <td class="val" [class.pos]="m.saldo >= 0" [class.neg]="m.saldo < 0">
+                {{ m.saldo | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </mat-card-content>
+  </mat-card>
+</div>

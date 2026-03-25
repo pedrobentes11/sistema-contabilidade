@@ -1,0 +1,101 @@
+.nf-visualizar-page {
+  display: flex; flex-direction: column; gap: 20px; max-width: 960px; margin: 0 auto;
+
+  .loading, .not-found {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    height: 300px; gap: 16px; color: #aaa;
+    mat-icon { font-size: 64px; width: 64px; height: 64px; }
+  }
+
+  .page-header {
+    display: flex; align-items: center; gap: 12px;
+    .header-info {
+      flex: 1; display: flex; align-items: center; gap: 12px;
+      h1 { margin: 0; font-size: 20px; font-weight: 700; color: #1a237e; }
+    }
+    .header-actions { display: flex; gap: 8px; }
+    .status-badge {
+      padding: 4px 14px; border-radius: 20px; font-size: 12px; font-weight: 700;
+      &.rascunho  { background: #fff8e1; color: #f57f17; }
+      &.emitida   { background: #e8f5e9; color: #2e7d32; }
+      &.cancelada { background: #f5f5f5; color: #757575; }
+      &.denegada  { background: #ffebee; color: #c62828; }
+    }
+  }
+
+  .nf-doc {
+    border-radius: 12px !important;
+
+    .nf-cabecalho {
+      display: flex; justify-content: space-between; align-items: flex-start; padding: 16px;
+      .emitente {
+        display: flex; align-items: flex-start; gap: 12px;
+        .nf-logo { font-size: 40px; width: 40px; height: 40px; color: #1565c0; }
+        h2 { margin: 0 0 4px; font-size: 16px; color: #1a237e; }
+        p { margin: 2px 0; font-size: 12px; color: #555; }
+      }
+      .nf-id {
+        text-align: right;
+        .nf-tipo { font-size: 10px; font-weight: 700; color: #888; text-transform: uppercase; }
+        .nf-num { font-size: 22px; font-weight: 700; color: #1a237e; }
+        .nf-data { font-size: 13px; color: #555; }
+      }
+    }
+
+    .secao {
+      padding: 16px;
+      h3 { margin: 0 0 12px; font-size: 13px; font-weight: 700; color: #1976d2;
+        text-transform: uppercase; letter-spacing: 0.5px; }
+    }
+
+    .dados-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;
+      .dado {
+        display: flex; flex-direction: column; gap: 2px;
+        label { font-size: 10px; color: #888; font-weight: 700; text-transform: uppercase; }
+        span { font-size: 13px; color: #333; }
+      }
+    }
+
+    .itens-header, .item-row {
+      display: flex; gap: 16px; padding: 8px 0; font-size: 13px;
+      span { flex: 1; }
+      .flex-3 { flex: 3; }
+      .valor-item { font-weight: 700; }
+    }
+    .itens-header { font-weight: 700; font-size: 11px; color: #888; border-bottom: 2px solid #e0e0e0; }
+    .item-row { border-bottom: 1px solid #f5f5f5; }
+    .total-itens {
+      display: flex; justify-content: space-between; padding: 12px 0; font-weight: 700;
+      font-size: 14px; color: #1a237e; border-top: 2px solid #1a237e; margin-top: 8px;
+    }
+
+    .impostos-grid {
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px;
+      .imposto {
+        display: flex; flex-direction: column; gap: 2px; padding: 8px; border-radius: 6px;
+        background: #f5f5f5;
+        label { font-size: 10px; color: #888; font-weight: 700; }
+        span { font-size: 13px; color: #333; }
+        &.total { background: #fff3e0; span { color: #e65100; font-weight: 700; } }
+        &.liquido { background: #e8f5e9; span { color: #2e7d32; font-weight: 700; font-size: 16px; } }
+      }
+    }
+
+    .discriminacao { background: #f9f9f9; padding: 12px; border-radius: 6px; font-size: 13px; line-height: 1.6; }
+
+    .cancelamento { background: #ffebee; border-radius: 8px;
+      h3 { color: #c62828; }
+      p { color: #c62828; font-weight: 600; }
+    }
+  }
+
+  .email-card {
+    border-radius: 12px !important;
+    .email-row {
+      display: flex; gap: 12px; align-items: flex-start;
+      mat-form-field { flex: 3; }
+      button { height: 56px; display: flex; align-items: center; gap: 6px; }
+    }
+  }
+}

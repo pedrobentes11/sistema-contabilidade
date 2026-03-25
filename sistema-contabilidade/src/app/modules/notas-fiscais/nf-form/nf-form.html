@@ -1,0 +1,253 @@
+<div class="nf-form-page">
+  <div class="page-header">
+    <button mat-icon-button (click)="cancelar()" matTooltip="Voltar">
+      <mat-icon>arrow_back</mat-icon>
+    </button>
+    <div class="header-title">
+      <mat-icon>receipt_long</mat-icon>
+      <h1>Nova Nota Fiscal</h1>
+    </div>
+  </div>
+
+  <form [formGroup]="form" (ngSubmit)="salvar()" autocomplete="off">
+
+    <!-- Tipo e Tomador -->
+    <mat-card class="form-card">
+      <mat-card-header>
+        <mat-icon mat-card-avatar>info</mat-icon>
+        <mat-card-title>Informações Gerais</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="form-row">
+          <mat-form-field appearance="outline">
+            <mat-label>Tipo de NF</mat-label>
+            <mat-select formControlName="tipo">
+              <mat-option *ngFor="let t of tiposNF" [value]="t">{{ t }}</mat-option>
+            </mat-select>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Tomador / Cliente *</mat-label>
+            <mat-select formControlName="tomadorId">
+              <mat-option *ngFor="let c of clientes" [value]="c.id">
+                {{ getNomeCliente(c) }}
+              </mat-option>
+            </mat-select>
+            <mat-error *ngIf="form.get('tomadorId')?.hasError('required')">Selecione um cliente</mat-error>
+          </mat-form-field>
+        </div>
+
+        <div class="form-row" *ngIf="clienteSelecionado">
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>CNPJ/CPF do Tomador</mat-label>
+            <input matInput [value]="clienteSelecionado.tipoPessoa === 'JURIDICA' ? clienteSelecionado.cnpj : clienteSelecionado.cpf" readonly>
+          </mat-form-field>
+        </div>
+
+        <div class="form-row">
+          <mat-form-field appearance="outline">
+            <mat-label>Data de Emissão *</mat-label>
+            <input matInput type="date" formControlName="dataEmissao">
+            <mat-error *ngIf="form.get('dataEmissao')?.hasError('required')">Obrigatório</mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Competência *</mat-label>
+            <input matInput type="date" formControlName="dataCompetencia">
+          </mat-form-field>
+        </div>
+
+        <div class="form-row toggles-row">
+          <mat-checkbox formControlName="optanteSimplesNacional" color="primary">
+            Optante pelo Simples Nacional
+          </mat-checkbox>
+          <mat-checkbox formControlName="incentivadorCultural" color="primary">
+            Incentivador Cultural
+          </mat-checkbox>
+          <mat-checkbox formControlName="issRetido" color="warn">
+            ISS Retido na Fonte
+          </mat-checkbox>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Emitente -->
+    <mat-card class="form-card">
+      <mat-card-header>
+        <mat-icon mat-card-avatar>business</mat-icon>
+        <mat-card-title>Dados do Emitente</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="form-row">
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Razão Social do Emitente *</mat-label>
+            <input matInput formControlName="emitenteNome">
+            <mat-error>Obrigatório</mat-error>
+          </mat-form-field>
+        </div>
+        <div class="form-row">
+          <mat-form-field appearance="outline">
+            <mat-label>CNPJ do Emitente *</mat-label>
+            <input matInput formControlName="emitenteCnpj" mask="00.000.000/0000-00">
+            <mat-error>Obrigatório</mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Inscrição Municipal</mat-label>
+            <input matInput formControlName="emitenteInscricaoMunicipal">
+          </mat-form-field>
+        </div>
+        <div class="form-row">
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Endereço do Emitente</mat-label>
+            <input matInput formControlName="emitenteEndereco">
+          </mat-form-field>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Itens / Serviços -->
+    <mat-card class="form-card">
+      <mat-card-header>
+        <mat-icon mat-card-avatar>list_alt</mat-icon>
+        <mat-card-title>Itens / Serviços</mat-card-title>
+        <div class="card-actions">
+          <button type="button" mat-stroked-button color="primary" (click)="addItem()">
+            <mat-icon>add</mat-icon> Adicionar Item
+          </button>
+        </div>
+      </mat-card-header>
+      <mat-card-content>
+        <div formArrayName="itens">
+          <div *ngFor="let item of itens.controls; let i = index" [formGroupName]="i" class="item-row">
+            <div class="item-fields">
+              <mat-form-field appearance="outline" class="campo-descricao">
+                <mat-label>Descrição *</mat-label>
+                <input matInput formControlName="descricao" placeholder="Descrição do serviço">
+                <mat-error>Obrigatório</mat-error>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="campo-qtd">
+                <mat-label>Qtd *</mat-label>
+                <input matInput type="number" formControlName="quantidade" min="0.01" step="1">
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="campo-un">
+                <mat-label>Unidade</mat-label>
+                <input matInput formControlName="unidade">
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="campo-valor">
+                <mat-label>Valor Unit. *</mat-label>
+                <input matInput type="number" formControlName="valorUnitario" min="0.01" step="0.01">
+                <span matPrefix>R$&nbsp;</span>
+              </mat-form-field>
+
+              <div class="item-total">
+                <span class="total-label">Total</span>
+                <span class="total-value">{{ getItemTotal(i) | currency:'BRL' }}</span>
+              </div>
+            </div>
+
+            <button type="button" mat-icon-button color="warn" (click)="removeItem(i)"
+                    [disabled]="itens.length === 1" matTooltip="Remover item">
+              <mat-icon>delete_outline</mat-icon>
+            </button>
+          </div>
+        </div>
+
+        <div class="valor-bruto-row">
+          <span>Valor Total dos Serviços:</span>
+          <strong>{{ valorBruto | currency:'BRL' }}</strong>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Discriminação e Impostos -->
+    <div class="two-col">
+      <mat-card class="form-card">
+        <mat-card-header>
+          <mat-icon mat-card-avatar>description</mat-icon>
+          <mat-card-title>Discriminação dos Serviços</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Discriminação *</mat-label>
+            <textarea matInput formControlName="discriminacaoServicos" rows="6"
+              placeholder="Descreva detalhadamente os serviços prestados..."></textarea>
+            <mat-error>Obrigatório</mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Observações</mat-label>
+            <textarea matInput formControlName="observacoes" rows="3"
+              placeholder="Informações adicionais (opcional)..."></textarea>
+          </mat-form-field>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="form-card">
+        <mat-card-header>
+          <mat-icon mat-card-avatar>account_balance</mat-icon>
+          <mat-card-title>Impostos (%)</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="form-row">
+            <mat-form-field appearance="outline">
+              <mat-label>ISS (%)</mat-label>
+              <input matInput type="number" formControlName="aliquotaISS" min="0" step="0.01">
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>IRPJ (%)</mat-label>
+              <input matInput type="number" formControlName="aliquotaIRPJ" min="0" step="0.01">
+            </mat-form-field>
+          </div>
+          <div class="form-row">
+            <mat-form-field appearance="outline">
+              <mat-label>CSLL (%)</mat-label>
+              <input matInput type="number" formControlName="aliquotaCSLL" min="0" step="0.01">
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>PIS (%)</mat-label>
+              <input matInput type="number" formControlName="aliquotaPIS" min="0" step="0.01">
+            </mat-form-field>
+          </div>
+          <div class="form-row">
+            <mat-form-field appearance="outline">
+              <mat-label>COFINS (%)</mat-label>
+              <input matInput type="number" formControlName="aliquotaCOFINS" min="0" step="0.01">
+            </mat-form-field>
+          </div>
+
+          <!-- Resumo de impostos -->
+          <div class="impostos-resumo">
+            <div class="resumo-linha">
+              <span>Valor Bruto</span>
+              <span>{{ valorBruto | currency:'BRL' }}</span>
+            </div>
+            <div class="resumo-linha destaque">
+              <span>Total de Impostos</span>
+              <span class="valor-imposto">{{ calcularImpostos().totalImpostos | currency:'BRL' }}</span>
+            </div>
+            <div class="resumo-linha total">
+              <span>Valor Líquido</span>
+              <strong>{{ calcularImpostos().valorLiquido | currency:'BRL' }}</strong>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+
+    <!-- Ações -->
+    <div class="form-actions">
+      <button type="button" mat-stroked-button (click)="cancelar()" [disabled]="saving">
+        Cancelar
+      </button>
+      <button type="submit" mat-raised-button color="primary" [disabled]="saving">
+        <mat-icon>save</mat-icon>
+        {{ saving ? 'Salvando...' : 'Criar Rascunho' }}
+      </button>
+    </div>
+
+  </form>
+</div>
